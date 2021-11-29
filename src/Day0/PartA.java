@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class PartA {
-    private int nOfLines = 10;
+    private int nOfLines = 10; //TODO CHANGE
     private BufferedReader reader;
     private String[] array = new String[nOfLines];
 

@@ -38,28 +38,13 @@ public class PartA {
             int y2 = Integer.parseInt(split[2].split(",")[1]);
 
             if (x1 == x2) {
-                if (y1 > y2) {
-                    for (int j = y1; j >= y2; j--) {
-                        diagram[x1][j]++;
-                    }
-                } else if (y1 < y2) {
-                    for (int j = y1; j <= y2; j++) {
-                        diagram[x1][j]++;
-                    }
-                } else {
-                    diagram[x1][y1]++;
+                for (int j = Math.min(y1, y2); j <= Math.max(y1, y2); j++) {
+                    diagram[x1][j]++;
                 }
             } else if (y1 == y2) {
-                if (x1 > x2) {
-                    for (int j = x1; j >= x2; j--) {
-                        diagram[j][y1]++;
-                    }
-                } else { //x < x2
-                    for (int j = x1; j <= x2; j++) {
-                        diagram[j][y1]++;
-                    }
+                for (int j = Math.min(x1, x2); j <= Math.max(x1, x2); j++) {
+                    diagram[j][y1]++;
                 }
-
             }
         }
 

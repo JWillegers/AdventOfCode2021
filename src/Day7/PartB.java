@@ -29,13 +29,9 @@ public class PartB {
         for (int goal = 0; goal < positions.get(positions.size() - 1); goal++) {
             long currentfuel = 0;
             for (int pos : positions) {
-                long localfuel = 1;
                 int move = Math.abs(pos - goal);
-                if (move != 0) {
-                    for (int i = 2; i <= move; i++) {
-                        localfuel += i;
-                    }
-                    currentfuel += localfuel;
+                for (int i = 0; i <= move; i++) {
+                    currentfuel += i;
                 }
             }
             if ((currentfuel < leastFuel || leastFuel < 0) && currentfuel >=0) {

@@ -61,6 +61,23 @@ public class Solution {
 
             String myNumber = "";
             for (String number : outputDigits) {
+                int fourMatchCounter = 0;
+                boolean oneMatch = true;
+                if (!one.equals("") && !four.equals("")) {
+                    for (int j = 0; j < 2; j++) {
+                        if (!number.contains(String.valueOf(one.charAt(j)))) {
+                            oneMatch = false;
+                        }
+                    }
+                    for (int j = 0; j < 4; j++) {
+                        if (number.contains(String.valueOf(four.charAt(j)))) {
+                            fourMatchCounter++;
+                        }
+                    }
+                } else {
+                    System.out.println("NO FOUR");
+                    System.exit(1);
+                }
                 switch (number.length()) {
                     case 2: //1
                         counterP1++;
@@ -75,57 +92,23 @@ public class Solution {
                         myNumber += "4";
                         break;
                     case 5: //2, 3, 5
-                        if (!one.equals("") && !four.equals("")) {
-                            int fourMatchCounter = 0;
-                            boolean oneMatch = true;
-                            for (int j = 0; j < 2; j++) {
-                                if (!number.contains(String.valueOf(one.charAt(j)))) {
-                                    oneMatch = false;
-                                }
-                            }
-                            for (int j = 0; j < 4; j++) {
-                                if (number.contains(String.valueOf(four.charAt(j)))) {
-                                    fourMatchCounter++;
-                                }
-                            }
-
-                            if (fourMatchCounter == 2) { //2
-                                myNumber += "2";
-                            } else if (oneMatch) { //3
-                                myNumber += "3";
-                            } else { //5
-                                myNumber += "5";
-                            }
-                        } else {
-                            System.out.println("NO ONE OR NO FOUR");
-                            System.exit(1);
+                        if (fourMatchCounter == 2) { //2
+                            myNumber += "2";
+                        } else if (oneMatch) { //3
+                            myNumber += "3";
+                        } else { //5
+                            myNumber += "5";
                         }
                         break;
                     case 6://0, 9
-                        if (!one.equals("") && !four.equals("")) {
-                            int fourMatchCounter2 = 0;
-                            boolean oneMatch2 = true;
-                            for (int j = 0; j < 2; j++) {
-                                if (!number.contains(String.valueOf(one.charAt(j)))) {
-                                    oneMatch2 = false;
-                                }
-                            }
-                            for (int j = 0; j < 4; j++) {
-                                if (number.contains(String.valueOf(four.charAt(j)))) {
-                                    fourMatchCounter2++;
-                                }
-                            }
-                            if (!oneMatch2) {
-                                myNumber += "6";
-                            } else if (fourMatchCounter2 == 4) {
-                                myNumber += "9";
-                            } else {
-                                myNumber += "0";
-                            }
+                        if (!oneMatch) {
+                            myNumber += "6";
+                        } else if (fourMatchCounter == 4) {
+                            myNumber += "9";
                         } else {
-                            System.out.println("NO FOUR");
-                            System.exit(1);
+                            myNumber += "0";
                         }
+
                         break;
                     case 7: //8
                         counterP1++;
@@ -136,7 +119,6 @@ public class Solution {
                         System.exit(1);
                 }
             }
-            System.out.println(i + " " + myNumber);
             sumP2 += Long.parseLong(myNumber);
 
         }

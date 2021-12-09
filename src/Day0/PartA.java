@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class PartA {
-    private int nOfLines = 10;
+    private int nOfLines = 10; //TODO change
     private String[] array = new String[nOfLines];
 
     public static void main(String[] args) {
@@ -16,7 +16,7 @@ public class PartA {
 
     public void setup() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("src/Day/input.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader("src/Day/input.txt")); //TODO change
             for (int i = 0; i < nOfLines; i++) {
                 array[i] = reader.readLine();
             }

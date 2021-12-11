@@ -4,12 +4,12 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class PartA {
+public class Solution {
     private int nOfLines = 10; //TODO change
     private String[] array = new String[nOfLines];
 
     public static void main(String[] args) {
-        PartA part = new PartA();
+        Solution part = new Solution();
         part.setup();
         part.solution();
     }

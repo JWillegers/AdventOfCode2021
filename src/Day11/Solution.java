@@ -43,8 +43,8 @@ public class Solution {
                 }
             }
 
-            boolean noTwoDigits = false;
-            while (!noTwoDigits) {
+            boolean noTwoDigits;
+            do {
                 noTwoDigits = true;
                 for (int x = 0; x < nOfLines; x++) {
                     for (int y = 0; y < nOfLines; y++) {
@@ -63,7 +63,7 @@ public class Solution {
                         }
                     }
                 }
-            }
+            } while (!noTwoDigits);
             if (i == 100) {
                 System.out.println("Part 1: " + flashes + " flashes");
             }

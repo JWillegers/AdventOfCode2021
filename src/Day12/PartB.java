@@ -47,7 +47,7 @@ public class PartB {
                                 }
                             }
                         }
-                        myCaves.add(new Cave(newCave, newCave.toUpperCase().equals(newCave), neighbours));
+                        myCaves.add(new Cave(newCave, neighbours));
                     }
                 }
             }

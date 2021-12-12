@@ -47,7 +47,7 @@ public class PartA {
                                 }
                             }
                         }
-                        myCaves.add(new Cave(newCave, newCave.toUpperCase().equals(newCave), neighbours));
+                        myCaves.add(new Cave(newCave, neighbours));
                     }
                 }
             }
@@ -73,7 +73,7 @@ public class PartA {
             for (Cave thisCave : myCaves) {
                 if (thisCave.name.equals(currentCave)) {
                     for (String neighbour : thisCave.neighbours) {
-                        if (neighbour.toLowerCase().equals(neighbour)) { //small cave
+                        if (neighbour.toLowerCase().equals(neighbour)) {
                             if (!path.contains(neighbour)) {
                                 pathFinder(neighbour, path + "," + neighbour);
                             }

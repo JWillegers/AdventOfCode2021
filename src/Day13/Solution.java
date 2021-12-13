@@ -79,6 +79,7 @@ public class Solution {
                 System.out.println("part 1: "+ counter);
                 solution(newPaper, 1);
             } else {
+                System.out.println("Part 2:");
                 for (int i = 0; i < newPaper[0].length; i++) {
                     String myLine = "";
                     for (int j = 0; j < newPaper.length; j++) {

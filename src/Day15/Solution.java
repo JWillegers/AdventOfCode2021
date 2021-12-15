@@ -54,12 +54,13 @@ public class Solution {
     }
 
     public void solution(int[][] array, int max) {
+        long start = System.currentTimeMillis();
         int idCounter = 1;
         boolean run = true;
         Map<Integer, Path> allPaths = new HashMap<>();
-        boolean[][] start = new boolean[max*nOfLines][max*nOfLines];
-        start[0][0] = true;
-        allPaths.put(0, new Path(0,0, 0, start));
+        boolean[][] visited = new boolean[max*nOfLines][max*nOfLines];
+        visited[0][0] = true;
+        allPaths.put(0, new Path(0,0, 0));
         while (run) {
             int idOfCurrentLowestRisk = -1;
             int currentLowestRisk = nOfLines*nOfLines*10;
@@ -76,46 +77,40 @@ public class Solution {
                 newPath.risk = myPath.risk;
                 newPath.x = myPath.x;
                 newPath.y = myPath.y;
-                newPath.visited = new boolean[max * nOfLines][max * nOfLines];
-                for (int j = 0; j < max * nOfLines; j++) {
-                    for (int k = 0; k < max * nOfLines; k++) {
-                        newPath.visited = myPath.visited;
-                    }
-                }
                 int number = -1;
                 if (i == 0) {
                     try {
-                        if (!myPath.visited[myPath.y][myPath.x - 1]) {
+                        if (!visited[myPath.y][myPath.x - 1]) {
                             number = array[myPath.y][myPath.x - 1];
                             newPath.risk += number;
                             newPath.x--;
-                            newPath.visited[myPath.y][myPath.x - 1] = true;
+                            visited[myPath.y][myPath.x - 1] = true;
                         }
                     } catch (IndexOutOfBoundsException ignore) {}
                 } else if (i == 1) {
                     try {
-                        if (!myPath.visited[myPath.y ][myPath.x + 1]) {
+                        if (!visited[myPath.y ][myPath.x + 1]) {
                             number = array[myPath.y][myPath.x + 1];
                             newPath.risk += number;
-                            newPath.visited[myPath.y ][myPath.x + 1] = true;
+                            visited[myPath.y][myPath.x + 1] = true;
                             newPath.x++;
                         }
                     } catch (IndexOutOfBoundsException ignore) {}
                 } else if (i == 2) {
                     try {
-                        if (!myPath.visited[myPath.y + 1][myPath.x]) {
+                        if (!visited[myPath.y + 1][myPath.x]) {
                             number = array[myPath.y + 1][myPath.x];
                             newPath.risk += number;
-                            newPath.visited[myPath.y + 1][myPath.x] = true;
+                            visited[myPath.y + 1][myPath.x] = true;
                             newPath.y++;
                         }
                     } catch (IndexOutOfBoundsException ignore) {}
                 } else {
                     try {
-                        if (!myPath.visited[myPath.y - 1][myPath.x]) {
+                        if (!visited[myPath.y - 1][myPath.x]) {
                             number = array[myPath.y - 1][myPath.x];
                             newPath.risk += number;
-                            newPath.visited[myPath.y - 1][myPath.x] = true;
+                            visited[myPath.y - 1][myPath.x] = true;
                             newPath.y--;
                         }
                     } catch (IndexOutOfBoundsException ignore) {}
@@ -132,6 +127,8 @@ public class Solution {
             }
             allPaths.remove(idOfCurrentLowestRisk);
         }
+        long end = System.currentTimeMillis();
+        System.out.println("runtime: " + (end - start) + "ms");
 
 
     }

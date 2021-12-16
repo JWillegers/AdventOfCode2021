@@ -5,7 +5,8 @@ import java.util.List;
 public class Packet {
     protected int version;
     protected int typeID;
-    protected int value;
+    protected long value;
     protected int operator;
+    protected int label;
     protected List<Packet> innerPackets;
 }

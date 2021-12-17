@@ -6,7 +6,6 @@ import java.util.List;
 public class Solution {
     private String binaryInput;
     private int counter;
-    private int padding;
 
     public static void main(String[] args) {
         Solution part = new Solution();
@@ -75,8 +74,7 @@ public class Solution {
 
     public void solution() {
         counter = 0;
-        padding = 0;
-        Packet packet = packets();
+        Packet packet = packets(null);
         System.out.println("Part1: " + sumVersion(packet));
         System.out.println("Part2: " + evaluate(packet));
     }
@@ -134,10 +132,11 @@ public class Solution {
         return result;
     }
 
-    public Packet packets() {
+    public Packet packets(Packet parent) {
         Packet packet = newPacket();
+        packet.padding = 0;
         if (packet.typeID == 4) {
-            packet.value = getNumber();
+            packet.value = getNumber(parent);
         } else {
             packet.operator = Integer.parseInt(String.valueOf(binaryInput.charAt(counter)));
             packet.innerPackets = new ArrayList<>();
@@ -146,15 +145,18 @@ public class Solution {
                 packet.label = Integer.parseInt(binaryInput.substring(counter, counter + 11), 2);
                 counter += 11;
                 for (int i = 0; i < packet.label; i++) {
-                    packet.innerPackets.add(packets());
+                    packet.innerPackets.add(packets(packet));
+
                 }
+                counter += packet.padding;
             } else {
                 packet.label = Integer.parseInt(binaryInput.substring(counter, counter + 15), 2);
                 counter += 15;
                 int currentCounter = counter;
                 while (counter < currentCounter + packet.label) {
-                    packet.innerPackets.add(packets());
+                    packet.innerPackets.add(packets(packet));
                 }
+                counter += packet.padding;
             }
         }
         return packet;
@@ -169,7 +171,7 @@ public class Solution {
         return packet;
     }
 
-    public long getNumber() {
+    public long getNumber(Packet parent) {
         String number = "";
         boolean run;
         do {
@@ -179,12 +181,15 @@ public class Solution {
             counter += 4;
         } while (run);
         int i = 0;
-        while (i < number.length() && number.charAt(i) == '0') {
-            padding++;
-            i++;
-        }
-        if (i == 0) {//seems like you always have some padding
-            padding += 4;
+        if (parent != null) {
+            while (i < number.length() && number.charAt(i) == '0') {
+                parent.padding++;
+                i++;
+            }
+
+            if (i == 0) {//seems like you always have some padding
+                parent.padding += 4;
+            }
         }
 
         return Long.parseLong(number, 2);

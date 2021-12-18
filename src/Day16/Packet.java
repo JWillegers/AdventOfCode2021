@@ -8,6 +8,5 @@ public class Packet {
     protected long value;
     protected int operator;
     protected int label;
-    protected int padding;
     protected List<Packet> innerPackets;
 }

@@ -74,7 +74,7 @@ public class Solution {
 
     public void solution() {
         counter = 0;
-        Packet packet = packets(null);
+        Packet packet = packets();
         System.out.println("Part1: " + sumVersion(packet));
         System.out.println("Part2: " + evaluate(packet));
     }
@@ -132,11 +132,10 @@ public class Solution {
         return result;
     }
 
-    public Packet packets(Packet parent) {
+    public Packet packets() {
         Packet packet = newPacket();
-        packet.padding = 0;
         if (packet.typeID == 4) {
-            packet.value = getNumber(parent);
+            packet.value = getNumber();
         } else {
             packet.operator = Integer.parseInt(String.valueOf(binaryInput.charAt(counter)));
             packet.innerPackets = new ArrayList<>();
@@ -145,18 +144,15 @@ public class Solution {
                 packet.label = Integer.parseInt(binaryInput.substring(counter, counter + 11), 2);
                 counter += 11;
                 for (int i = 0; i < packet.label; i++) {
-                    packet.innerPackets.add(packets(packet));
-
+                    packet.innerPackets.add(packets());
                 }
-                counter += packet.padding;
             } else {
                 packet.label = Integer.parseInt(binaryInput.substring(counter, counter + 15), 2);
                 counter += 15;
                 int currentCounter = counter;
                 while (counter < currentCounter + packet.label) {
-                    packet.innerPackets.add(packets(packet));
+                    packet.innerPackets.add(packets());
                 }
-                counter += packet.padding;
             }
         }
         return packet;
@@ -171,7 +167,7 @@ public class Solution {
         return packet;
     }
 
-    public long getNumber(Packet parent) {
+    public long getNumber() {
         String number = "";
         boolean run;
         do {
@@ -180,18 +176,6 @@ public class Solution {
             number += binaryInput.substring(counter, counter + 4);
             counter += 4;
         } while (run);
-        int i = 0;
-        if (parent != null) {
-            while (i < number.length() && number.charAt(i) == '0') {
-                parent.padding++;
-                i++;
-            }
-
-            if (i == 0) {//seems like you always have some padding
-                parent.padding += 4;
-            }
-        }
-
         return Long.parseLong(number, 2);
     }
 }

@@ -5,19 +5,18 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class Solution {
-    private int nOfLines = 100;
+    private int nOfLines = 10;
     private String[] array = new String[nOfLines];
 
     public static void main(String[] args) {
         Solution part = new Solution();
-        System.exit(0);
         part.setup();
-        part.solution(part.array[0]);
+        part.solution(part.array[0], 0);
     }
 
     public void setup() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("src/Day18/input.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader("src/Day18/test.txt"));
             for (int i = 0; i < nOfLines; i++) {
                 array[i] = reader.readLine();
             }
@@ -28,10 +27,11 @@ public class Solution {
         }
     }
 
-    public void solution(String line) {
+    public void solution(String line, int lineNumber) {
         boolean run = true;
         do {
             int bracketCounter = 0;
+            boolean somethingHappend = false;
             for (int j = 0; j < line.length(); j++) {
                 char symbol = line.charAt(j);
                 if (symbol == '[') {
@@ -42,15 +42,34 @@ public class Solution {
 
                 if (bracketCounter == 5) {
                     line = explode(line, j);
+                    somethingHappend = true;
+                    break;
+                } else if (Character.isDigit(line.charAt(j)) && Character.isDigit(line.charAt(j + 1))) {
+                    line = split(line, j);
+                    somethingHappend = true;
                     break;
                 }
             }
+            run = somethingHappend;
 
         } while (run);
 
-        //TODO addition of 2 lines
+        if (lineNumber + 1 != nOfLines) {
+            String newLine = "[" + line + "," + array[lineNumber + 1] + "]";
+            solution(newLine,lineNumber + 1);
+        } else {
+            System.out.println(line);
+        }
 
-        System.out.println();
+
+    }
+
+    public String split(String line, int pos) {
+        String newLine = line.substring(0, pos) + "[";
+        double number = Double.parseDouble(String.valueOf(line.charAt(pos)) + line.charAt(pos + 1));
+        newLine += (int) Math.floor(number / 2) + "," + (int) Math.ceil(number / 2);
+        newLine += "]" + line.substring(pos + 2);
+        return newLine;
     }
 
     public String explode(String line, int pos) {
@@ -88,6 +107,8 @@ public class Solution {
             newLine += "0,";
         }
 
+        System.out.println(line);
+        System.out.println(newLine);
         newLine += line.substring(pos + 6, j);
 
         if (j + 1 < line.length()) {

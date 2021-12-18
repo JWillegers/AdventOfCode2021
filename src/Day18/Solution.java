@@ -3,15 +3,17 @@ package Day18;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Locale;
+import java.util.SimpleTimeZone;
 
 //Big thanks to u/Pun-Master-General and u/Dataforce in this reddit thread https://www.reddit.com/r/adventofcode/comments/rj1p92/2021_day_18_part_1_if_i_encounter_a_pair_that/
 public class Solution {
-    private int nOfLines = 10;
+    private int nOfLines = 100;
     private String[] array = new String[nOfLines];
 
     public static void main(String[] args) {
         Solution part = new Solution();
-
+/*
         //testing
         System.out.println("[[[[[9,8],1],2],3],4] -> " + part.explode("[[[[[9,8],1],2],3],4]", 4));
         System.out.println("[7,[6,[5,[4,[3,2]]]]] -> " + part.explode("[7,[6,[5,[4,[3,2]]]]]", 12));
@@ -20,13 +22,15 @@ public class Solution {
         System.out.println("-----------------------------------------\n");
         part.solution("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]", 9);
         System.out.println("-----------------------------------------\n");
+
+ */
         part.setup();
         part.solution(part.array[0], 0);
     }
 
     public void setup() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("src/Day18/test.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader("src/Day18/input.txt"));
             for (int i = 0; i < nOfLines; i++) {
                 array[i] = reader.readLine();
             }
@@ -57,11 +61,9 @@ public class Solution {
                         symbol = line.charAt(k);
                         if (symbol == '[') {
                             line = explode(line, k);
-                            System.out.println("after explode: " + line);
                             innerrun = false;
                         } else if (symbol == ']') {
                             line = explode(line, j);
-                            System.out.println("after explode: " + line);
                             innerrun = false;
                         } else {
                             k++;
@@ -80,7 +82,6 @@ public class Solution {
                         break;
                     }
                 }
-                System.out.println("after split: " + line);
             }
             run = somethingHappend;
 
@@ -88,15 +89,40 @@ public class Solution {
 
         if (lineNumber + 1 != nOfLines) {
             String newLine = "[" + line + "," + array[lineNumber + 1] + "]";
-            System.out.println("\nNEW ADDITION: " + newLine);
             solution(newLine,lineNumber + 1);
             if (lineNumber == 1) {
             }
         } else {
             System.out.println(line);
+            while (line.contains("[")) {
+                line = calculateSum(line);
+            }
+            System.out.println(line);
         }
 
 
+    }
+
+    public String calculateSum(String line) {
+        StringBuilder newLine = new StringBuilder();
+        for (int i = 0; i < line.length() - 2; i++) {
+            if (line.charAt(i) == '[') {
+                for (int j = i + 1; j < line.length(); j++) {
+                    if (line.charAt(j) == '[') {
+                        break;
+                    } else if (line.charAt(j) == ']') {
+                        newLine.append(line.substring(0, i));
+                        String subString = line.substring(i + 1, j);
+                        String[] numbers = subString.split(",");
+                        int sum = 3 * Integer.parseInt(numbers[0]) + 2 * Integer.parseInt(numbers[1]);
+                        newLine.append(sum);
+                        newLine.append(line.substring(j + 1));
+                        return newLine.toString();
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public String split(String line, int pos) {
@@ -108,95 +134,82 @@ public class Solution {
     }
 
     public String explode(String line, int pos) {
-        boolean doubleDigit = Character.isDigit(line.charAt(pos + 2));
-        int pos2;
-        if (doubleDigit) {
-            pos2 = pos + 1;
-        } else {
-            pos2 = pos;
-        }
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            System.exit(1);
-        }
-        int i = pos;
+        StringBuilder newLine = new StringBuilder();
+        int i = pos - 1;
         boolean run = true;
-        while (run && i >= 0) {
+        do {
             if (Character.isDigit(line.charAt(i))) {
                 run = false;
             } else {
                 i--;
             }
+        } while (run && i > 0);
+
+        int number;
+        if (Character.isDigit(line.charAt(pos + 2))) {
+            number = Integer.parseInt(String.valueOf(line.charAt(pos + 1)) + line.charAt(pos + 2));
+        } else {
+            number = Integer.parseInt(String.valueOf(line.charAt(pos + 1)));
         }
 
-        int j;
-        //jump to closing bracket
-        if (doubleDigit) {
-            j = pos + 5;
-        } else {
-            j = pos + 4;
+        if (i > 0) {
+            if (Character.isDigit(line.charAt(i - 1))) {
+                newLine.append(line.substring(0, i - 1));
+                int sum = number + Integer.parseInt(line.charAt(i - 1) + String.valueOf(line.charAt(i)));
+                newLine.append(sum);
+
+            } else {
+                newLine.append(line.substring(0, i));
+                int sum = number + Integer.parseInt(String.valueOf(line.charAt(i)));
+                newLine.append(sum);
+            }
+            newLine.append(line.substring(i + 1, pos));
+            if (line.charAt(pos - 1) == ',' || line.charAt(pos - 1) == '[') {
+                newLine.append("0");
+            }
+        } else { //first number pair is the one that needs to be exploded
+            newLine.append(line.substring(0, pos) + "0");
         }
+
+        int j = pos;
         run = true;
-        while (run && j < line.length()) {
-            if (Character.isDigit(line.charAt(j))) {
+        do {
+            if (line.charAt(j) == ']') {
                 run = false;
             } else {
                 j++;
             }
-        }
-        String newLine = "";
-        if (i > 0) {
-            newLine = line.substring(0, i);
-            int number1;
-            int number2;
-            if (Character.isDigit(line.charAt(i + 1))) {
-                number1 = Integer.parseInt(String.valueOf(line.charAt(i)) + line.charAt(i + 1));
-            } else {
-                number1 = Integer.parseInt(String.valueOf(line.charAt(i)));
-            }
+        } while (run);
 
-            if (doubleDigit) {
-                number2 = Integer.parseInt(String.valueOf(line.charAt(pos + 1)) + line.charAt(pos + 2));
+        int k = j + 1;
+        run = true;
+        do {
+            if (Character.isDigit(line.charAt(k))) {
+                run = false;
             } else {
-                number2 = Integer.parseInt(String.valueOf(line.charAt(pos + 1)));
+                k++;
             }
-            newLine += (number1 + number2);
-            if (line.charAt(pos - 1) == ',') {
-                newLine += ",0]";
+        } while (run && k < line.length());
+
+        if (Character.isDigit(line.charAt(j - 2))) {
+            number = Integer.parseInt(line.charAt(j - 2) + String.valueOf(line.charAt(j - 1)));
+        } else {
+            number = Integer.parseInt(String.valueOf(line.charAt(j - 1)));
+        }
+
+        if (k + 1 < line.length()) {
+            newLine.append(line.substring(j + 1, k));
+            if (Character.isDigit(line.charAt(k + 1))){
+                int sum = number + Integer.parseInt(String.valueOf(line.charAt(k)) + line.charAt(k + 1));
+                newLine.append(sum + line.substring(k + 2));
             } else {
-                newLine += line.substring(i + 1, pos - 1);
-                newLine += "[0,";
+                int sum = number + Integer.parseInt(String.valueOf(line.charAt(k)));
+                newLine.append(sum + line.substring(k + 1));
             }
         } else {
-            newLine = line.substring(0, pos);
-            newLine += "0,";
+            newLine.append(line.substring(j + 1));
         }
 
-        if (pos + 6 < j) {
-            newLine += line.substring(pos + 6, j);
-        }
-
-        if (j + 1 < line.length()) {
-            int number1;
-            int number2;
-            if (Character.isDigit(line.charAt(j + 1))) {
-                number1 = Integer.parseInt(String.valueOf(line.charAt(j)) + line.charAt(j + 1));
-                System.out.println("number1: " + number1);
-            } else {
-                number1 = Integer.parseInt(String.valueOf(line.charAt(j)));
-            }
-
-            if (Character.isDigit(line.charAt(pos2 + 4))) {
-                number2 = Integer.parseInt(String.valueOf(line.charAt(pos2 + 3)) + line.charAt(pos2 + 4));
-                System.out.println("number2: " + number2);
-            } else {
-                number2 = Integer.parseInt(String.valueOf(line.charAt(pos2 + 3)));
-            }
-            newLine += (number1 + number2);
-            newLine += line.substring(j + 1);
-        }
-
-        return newLine;
+        return newLine.toString();
     }
 }

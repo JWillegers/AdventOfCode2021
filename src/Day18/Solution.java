@@ -3,29 +3,26 @@ package Day18;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Locale;
-import java.util.SimpleTimeZone;
 
 //Big thanks to u/Pun-Master-General and u/Dataforce in this reddit thread https://www.reddit.com/r/adventofcode/comments/rj1p92/2021_day_18_part_1_if_i_encounter_a_pair_that/
 public class Solution {
     private int nOfLines = 100;
     private String[] array = new String[nOfLines];
+    private int max;
 
     public static void main(String[] args) {
         Solution part = new Solution();
-/*
-        //testing
-        System.out.println("[[[[[9,8],1],2],3],4] -> " + part.explode("[[[[[9,8],1],2],3],4]", 4));
-        System.out.println("[7,[6,[5,[4,[3,2]]]]] -> " + part.explode("[7,[6,[5,[4,[3,2]]]]]", 12));
-        System.out.println("[[6,[5,[4,[3,2]]]],1] -> " + part.explode("[[6,[5,[4,[3,2]]]],1]", 10));
-        System.out.println("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]] -> " + part.explode("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]", 10));
-        System.out.println("-----------------------------------------\n");
-        part.solution("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]", 9);
-        System.out.println("-----------------------------------------\n");
-
- */
         part.setup();
         part.solution(part.array[0], 0);
+        part.max = 0;
+        for (int i = 0; i < part.nOfLines; i++) {
+            for (int j = 0; j < part.nOfLines; j++) {
+                if (i != j) {
+                    part.solution("[" + part.array[i] + "," + part.array[j] + "]", -1);
+                }
+            }
+        }
+        System.out.println("part2: " + part.max);
     }
 
     public void setup() {
@@ -87,21 +84,28 @@ public class Solution {
 
         } while (run);
 
-        if (lineNumber + 1 != nOfLines) {
+        if (lineNumber >= 0 && lineNumber + 1 != nOfLines) {
             String newLine = "[" + line + "," + array[lineNumber + 1] + "]";
             solution(newLine,lineNumber + 1);
             if (lineNumber == 1) {
             }
         } else {
-            System.out.println(line);
             while (line.contains("[")) {
                 line = calculateSum(line);
             }
-            System.out.println(line);
+            if (lineNumber >= 0) {
+                System.out.println("part1: " + line);
+            } else {
+                int number = Integer.parseInt(line);
+                if (number > max) {
+                    max = number;
+                }
+            }
         }
 
 
     }
+
 
     public String calculateSum(String line) {
         StringBuilder newLine = new StringBuilder();

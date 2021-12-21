@@ -12,11 +12,6 @@ public class PartB {
         part.solution(true, 0, 0, part.p1Start, part.p2Start, 1);
         System.out.println("p1 wins: " + part.p1Wins);
         System.out.println("p2 wins: " + part.p2Wins);
-        if (part.p1Wins > part.p2Wins) {
-            System.out.println(part.p1Wins);
-        } else {
-            System.out.println(part.p2Wins);
-        }
     }
 
     public void solution(boolean p1Turn, int p1Score, int p2Score, int p1field, int p2field, long paths) {

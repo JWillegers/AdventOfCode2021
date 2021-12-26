@@ -122,13 +122,8 @@ public class Solution {
         } else if (p.typeID == 6) {
             result = innerResult.get(0) < innerResult.get(1) ? 1 : 0;
         } else if (p.typeID == 7) {
-            result = innerResult.get(0) == innerResult.get(1) ? 1 : 0;
+            result = (long) innerResult.get(0) == (long) innerResult.get(1) ? 1 : 0;
         }
-        String toPrint = "";
-        for (long number : innerResult) {
-            toPrint += number + ", ";
-        }
-        System.out.println("operation: " + p.typeID + ", values: " +toPrint + "result: " + result);
         return result;
     }
 

@@ -51,7 +51,7 @@ public class Solution {
             }
         }
 
-        solution(burrow, 0 , 2);
+        solution(burrow, 0 , 2, 0);
         System.out.println("part 1 answer: " + lowestCost);
         long mid = System.currentTimeMillis();
         System.out.println("part 1 time: " + ((double) mid - start)/1000 + " seconds");
@@ -90,52 +90,56 @@ public class Solution {
 
             }
         }
-        solution(burrow, 0, 4);
+        solution(burrow, 0, 4, 0);
         System.out.println("part 2 answer: " + lowestCost);
         System.out.println("part 2 time: " + ((double) System.currentTimeMillis() - mid)/1000 + " seconds");
     }
 
-    public void solution(char[][] burrow, int cost, int depth) {
-        boolean result = true;
-        int y = 1;
-        while (result && y <= depth) {
-            result = burrow[y][2] == 'A' && burrow[y][4] == 'B' && burrow[y][6] == 'C' && burrow[y][8] == 'D';
-            y++;
-        }
-        if (result) {
-            if (cost < lowestCost) {
-                lowestCost = cost;
+    public void solution(char[][] burrow, int cost, int depth, int step) {
+        if (step < 50) {
+            boolean result = true;
+            int y = 1;
+            while (result && y <= depth) {
+                result = burrow[y][2] == 'A' && burrow[y][4] == 'B' && burrow[y][6] == 'C' && burrow[y][8] == 'D';
+                y++;
             }
-        } else {
-            for (int i = 0; i < burrow.length; i++) {
-                for (int j = 0; j < burrow[0].length; j++) {
-                    char current = burrow[i][j];
-                    if (current != '#' && current != '.') {
-                        if ((!(j == 2 && current == 'A')
-                            && !(j == 4 && current == 'B')
-                            && !(j == 6 && current == 'C')
-                            && !(j == 8 && current == 'D'))
-                            || checkBelow(burrow, j, depth)) {
-                            if (i == 0) {
-                                toFinalDestination(i, j, current, burrow, cost, depth);
-                            } else {
-                                if (i == 1 || checkAbove(burrow, i, j)) {
-                                    if (!toFinalDestination(i, j, current, burrow, cost, depth)) {
-                                        for (int m = 0; m < burrow[0].length; m++) {
-                                            if ((m % 2 == 1 || m == 0 || m == burrow[0].length - 1) && burrow[0][m] == '.') {
-                                                if (noObstacle(burrow, m, j)) {
-                                                    char[][] newBurrow = new char[burrow.length][];
-                                                    for (int p = 0; p < burrow.length; p++) {
-                                                        newBurrow[p] = Arrays.copyOf(burrow[p], burrow[p].length);
+            if (result) {
+                if (cost < lowestCost) {
+                    lowestCost = cost;
+                }
+            } else {
+                for (int i = 0; i < burrow.length; i++) {
+                    for (int j = 0; j < burrow[0].length; j++) {
+                        char current = burrow[i][j];
+                        if (current != '#' && current != '.') {
+                            if ((!(j == 2 && current == 'A')
+                                    && !(j == 4 && current == 'B')
+                                    && !(j == 6 && current == 'C')
+                                    && !(j == 8 && current == 'D'))
+                                    || checkBelow(burrow, j, depth)) {
+                                if (i == 0) {
+                                    if (toFinalDestination(i, j, current, burrow, cost, depth, step)) {
+                                        break;
+                                    }
+                                } else {
+                                    if (i == 1 || checkAbove(burrow, i, j)) {
+                                        if (!toFinalDestination(i, j, current, burrow, cost, depth, step)) {
+                                            for (int m = 0; m < burrow[0].length; m++) {
+                                                if ((m % 2 == 1 || m == 0 || m == burrow[0].length - 1) && burrow[0][m] == '.') {
+                                                    if (noObstacle(burrow, m, j)) {
+                                                        char[][] newBurrow = new char[burrow.length][];
+                                                        for (int p = 0; p < burrow.length; p++) {
+                                                            newBurrow[p] = Arrays.copyOf(burrow[p], burrow[p].length);
+                                                        }
+                                                        newBurrow[i][j] = '.';
+                                                        newBurrow[0][m] = current;
+                                                        solution(newBurrow, cost + costs.get(current) * (Math.abs(m - j) + i), depth, step + 1);
                                                     }
-                                                    newBurrow[i][j] = '.';
-                                                    newBurrow[0][m] = current;
-                                                    solution(newBurrow, cost + costs.get(current) * (Math.abs(m - j) + i), depth);
                                                 }
                                             }
+                                        } else {
+                                            break;
                                         }
-                                    } else {
-                                        break;
                                     }
                                 }
                             }
@@ -189,7 +193,7 @@ public class Solution {
         return true;
     }
 
-    public boolean toFinalDestination(int i, int j, char current, char[][] burrow, int cost, int depth) {
+    public boolean toFinalDestination(int i, int j, char current, char[][] burrow, int cost, int depth, int step) {
         char[][] newBurrow = new char[burrow.length][];
         for (int p = 0; p < burrow.length; p++) {
             newBurrow[p] = Arrays.copyOf(burrow[p], burrow[p].length);
@@ -207,7 +211,7 @@ public class Solution {
                         }
                     }
                     newBurrow[m][destColumn] = current;
-                    solution(newBurrow, cost + costs.get(current) * (m + i + Math.abs(j - destColumn)), depth);
+                    solution(newBurrow, cost + costs.get(current) * (m + i + Math.abs(j - destColumn)), depth, step + 1);
                     return true;
                 }
             }

@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class PartB {
-    private final int nOfLines = 60;
+    private final int nOfLines = 420;
     private int minX;
     private int maxX;
     private int minY;
@@ -24,7 +24,7 @@ public class PartB {
 
     public void setup() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("src/Day22/test.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader("src/Day22/input.txt"));
             minX = 0;
             maxX = 0;
             minY = 0;
@@ -34,6 +34,15 @@ public class PartB {
             for (int i = 0; i < nOfLines; i++) {
                 String line = reader.readLine();
                 String[] split = line.split("[,=.]");
+                /*
+                        [0] => "on x" or "off x"
+                        [1] => min x
+                        [3] => max x
+                        [5] => min y
+                        [7] => max y
+                        [9] => min z
+                        [11] => max z
+                     */
                 array[i][0] = split[0].contains("on") ? 0 : 1;
                 array[i][1] = Integer.parseInt(split[1]);
                 array[i][2] = Integer.parseInt(split[3]);
@@ -69,38 +78,15 @@ public class PartB {
         cubes = new boolean[step][step][step];
         for (int direction1 = minX; direction1 <= maxX; direction1+= step) {
             for (int direction2 = minY; direction2 <= maxY; direction2 += step) {
-                System.out.println("xy: " + direction1 + ", " + direction2 + "; count: " + counter);
-                boolean on = false;
+                System.out.println("x, y: " + direction1 + ", " + direction2 + "; count: " + counter);
                 for (int direction3 = minZ; direction3 <= maxZ; direction3 += step) {
                     boolean tryCount = false;
                     for (int i = 0; i < nOfLines; i++) {
-                    /*
-                        [1] => min x
-                        [3] => max x
-                        [5] => min y
-                        [7] => max y
-                        [9] => min z
-                        [11] => max z
-                     */
-                        if (array[i][0] == 1 || (array[i][0] == 0 && on)) {
+                        if (array[i][0] == 1 || (array[i][0] == 0 && tryCount)) { //line start with "on", or line start with "off" and there are some lights on in the section
                             for (int x = Math.max(array[i][1], direction1); x < Math.min(array[i][2], direction1 + step); x++) {
                                 for (int y = Math.max(array[i][3], direction2); y < Math.min(array[i][4], direction2 + step); y++) {
                                     for (int z = Math.max(array[i][5], direction3); z < Math.min(array[i][6], direction3 + step); z++) {
-                                        try {
-                                            cubes[x - direction1][y - direction2][z - direction3] = array[i][0] == 1;
-                                            on = true;
-                                        } catch (IndexOutOfBoundsException e) {
-                                            e.printStackTrace();
-                                            System.out.println("x: " + x);
-                                            System.out.println(x + Math.abs(direction1));
-                                            System.out.println("y: " + y);
-                                            System.out.println(y + Math.abs(direction2));
-                                            System.out.println("z: " + z);
-                                            System.out.println(z + Math.abs(direction3));
-                                            System.out.println(array[i][6]);
-                                            System.out.println(direction3);
-                                            System.exit(1);
-                                        }
+                                        cubes[x - direction1][y - direction2][z - direction3] = array[i][0] == 1;
                                         tryCount = true;
                                     }
                                 }

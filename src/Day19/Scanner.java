@@ -20,12 +20,13 @@ public class Scanner{
             int bx = b.cord.x;
             int by = b.cord.y;
             int bz = b.cord.z;
-            for(int j = 0; j <= i; j++) {
+            for(int j = 0; j < beacons.size(); j++) {
                 if (j == i) {
                     b.relativePositionsOtherBeacons.add(new Cord(0, 0, 0));
                 } else {
                     Cord c = beacons.get(j).cord;
-                    b.relativePositionsOtherBeacons.add(new Cord(Math.abs(c.x-bx), Math.abs(c.y-by), Math.abs(c.z-bz)));
+                    //b.relativePositionsOtherBeacons.add(new Cord(Math.abs(c.x-bx), Math.abs(c.y-by), Math.abs(c.z-bz)));
+                    b.relativePositionsOtherBeacons.add(new Cord(c.x-bx, c.y-by, c.z-bz));
                 }
             }
         }

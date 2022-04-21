@@ -66,22 +66,40 @@ public class Solution {
             Beacon b0 = scannerZero.beacons.get(i);
             List<Cord> r0 = b0.relativePositionsOtherBeacons;
             for(int j = 0; j < scannerOne.beacons.size(); j++) {
-                Beacon b1 = scannerZero.beacons.get(j);
+                Beacon b1 = scannerOne.beacons.get(j);
                 List<Cord> r1 = b1.relativePositionsOtherBeacons;
                 int matches = 0;
                 for (Cord c0 : r0) {
                     for(Cord c1 : r1) {
-                        if(c0.x==c1.x && c0.y==c1.y && c0.z==c1.z) {
+                        if(b0.cord.x == 0) {
+                            System.out.println(c0.x + " " + c0.y + " " + c0.z
+                                    + " " + c1.x + " " + c1.y + " " + c1.z);
+                        }
+                        if(c0.x==-c1.x && c0.y==c1.y && c0.z==-c1.z) {
                             matches++;
-                            if (matches == 12) {
-                                scannerOne.cord.x = scannerZero.cord.x + b0.cord.x + b1.cord.x;
-                                scannerOne.cord.y = scannerZero.cord.y + b0.cord.y + b1.cord.y;
-                                scannerOne.cord.z = scannerZero.cord.z + b0.cord.z + b1.cord.z;
-                                return;
-                            }
                         }
                     }
                 }
+                if (matches >= 12) {
+                    System.out.println("=====================");
+                    System.out.println(b0.cord.x + " " + b0.cord.y + " " + b0.cord.z);
+                    System.out.println(b1.cord.x + " " + b1.cord.y + " " + b1.cord.z);
+                    scannerOne.cord.x = scannerZero.cord.x + b0.cord.x + b1.cord.x;
+                    scannerOne.cord.y = scannerZero.cord.y + b0.cord.y + -b1.cord.y;
+                    scannerOne.cord.z = scannerZero.cord.z + b0.cord.z + b1.cord.z;
+                    System.out.println(scannerOne.cord.x + ", " + scannerOne.cord.y + ", " + scannerOne.cord.z);
+                    return;
+                }
+
+                if(b0.cord.x == 0) {
+                    System.out.println("=x=x=x=x=x=x=x=x=x=x=");
+                    System.out.println(b1.cord.x + " " + b1.cord.y + " " + b1.cord.z
+                            + " " + matches);
+                    System.out.println("=x=x=x=x=x=x=x=x=x=x=");
+                }
+
+
+
             }
         }
 

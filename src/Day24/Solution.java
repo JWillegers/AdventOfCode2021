@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+
+//https://github.com/dphilipson/advent-of-code-2021/blob/master/src/days/day24.rs
 public class Solution {
     private int nOfLines = 252;
     private String[] array = new String[nOfLines];
@@ -29,10 +31,10 @@ public class Solution {
     }
 
     public void solution() {
+        HashMap<String, Long> variables = new HashMap<>();
         long monad = 9999999 + (long) 9999999 * 10000000;
         boolean run = true;
         while (run && monad >= 1111111 + (long) 1111111 * 10000000) {
-            HashMap<String, Long> variables = new HashMap<>();
             variables.put("w", (long) 0);
             variables.put("x", (long) 0);
             variables.put("y", (long) 0);
@@ -53,6 +55,7 @@ public class Solution {
                         case "inp":
                             long number = Long.parseLong(String.valueOf(String.valueOf(monad).charAt(pointer)));
                             variables.put(register, number);
+                            pointer++;
                             break;
                         case "add":
                             variables.put(register, value1 + value2);
@@ -66,7 +69,7 @@ public class Solution {
                             }
                             break;
                         case "mod":
-                            if (value1 != 0 && value2 != 0) {
+                            if (value1 > 0 && value2 > 0) {
                                 variables.put(register, value1 % value2);
                             }
                             break;
@@ -86,13 +89,23 @@ public class Solution {
             } else {
                 String number = String.valueOf(monad);
                 String newNumber = "";
+                boolean zeroFound = false;
                 for (int i = 0; i < number.length(); i++) {
                     if (i == 0) {
                         newNumber += number.charAt(0);
+                    } else if (zeroFound) {
+                        newNumber += "9";
+                    } else if (number.charAt(i) == '0') {
+                        newNumber = newNumber.substring(0, newNumber.length() - 1);
+                        newNumber += Integer.parseInt(String.valueOf(number.charAt(i - 1))) - 1;
+                        newNumber += "9";
+                        zeroFound = true;
+                    } else {
+                        newNumber += Integer.parseInt(String.valueOf(number.charAt(i)));
                     }
                 }
+                monad = Long.parseLong(newNumber);
             }
-
         }
         System.out.println(monad);
     }

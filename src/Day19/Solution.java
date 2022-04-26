@@ -48,8 +48,10 @@ public class Solution {
 
     public void solution() {
         createMap();
-        System.out.println("Scanner 1: " + myScanners.get(1).cord.x + ", " + myScanners.get(1).cord.y + ", " + myScanners.get(1).cord.z);
-        System.out.println("Scanner 4: " + myScanners.get(4).cord.x + ", " + myScanners.get(4).cord.y + ", " + myScanners.get(4).cord.z);
+
+        for(int i = 0; i < 5; i++) {
+            System.out.println("Scanner " + i + ": " + myScanners.get(i).cord.x + ", " + myScanners.get(i).cord.y + ", " + myScanners.get(i).cord.z);
+        }
     }
 
     public void createMap() {
@@ -60,27 +62,27 @@ public class Solution {
         scannerZero.cord.z = 0;
 
         boolean run = true;
+        int counter0 = 0;
+        int counter1 = 1;
 
-        Scanner s_a = myScanners.get(0);
-        for (int P = 1; P < 5; P += 3) {
-            boolean match = false;
-            if(P == 4) {
-                s_a = myScanners.get(1);
-            }
-            Scanner s_b = myScanners.get(P);
-            int i = 0;
-            while (i < s_a.beacons.size() && !match) {
-                Beacon b0 = s_a.beacons.get(i);
-                List<Cord> r0 = b0.relativePositionsOtherBeacons;
-                int j = 0;
-                while (j < s_b.beacons.size() && !match) {
-                    Beacon b1 = s_b.beacons.get(j);
-                    List<Cord> r1 = b1.relativePositionsOtherBeacons;
-                    for (int mx = -1; mx < 2; mx += 2) {
-                        for (int my = -1; my < 2; my += 2) {
-                            for (int mz = -1; mz < 2; mz += 2) {
-                                int face = 0;
-                                while (face < 6 && !match) {
+        while (run) {
+            Scanner s_a = myScanners.get(counter0);
+            while(run && counter1 < myScanners.size()) {
+                boolean match = false;
+                Scanner s_b = myScanners.get(counter1);
+                int i = 0;
+                while (i < s_a.beacons.size() && !s_b.matched) {
+                    Beacon b0 = s_a.beacons.get(i);
+                    List<Cord> r0 = b0.relativePositionsOtherBeacons;
+                    int j = 0;
+                    while (j < s_b.beacons.size() && !match) {
+                        Beacon b1 = s_b.beacons.get(j);
+                        List<Cord> r1 = b1.relativePositionsOtherBeacons;
+                        for (int mx = -1; mx < 2; mx += 2) {
+                            for (int my = -1; my < 2; my += 2) {
+                                for (int mz = -1; mz < 2; mz += 2) {
+                                    int face = 0;
+                                    while (face < 6 && !match) {
                                     /*
                                     0: x,y,z
                                     1: x,z,y
@@ -89,34 +91,34 @@ public class Solution {
                                     4: z,x,y
                                     5: z,y,x
                                      */
-                                    int matches = 0;
-                                    for (Cord c0 : r0) {
-                                        for (Cord c1 : r1) {
-                                            if (face == 0) {
-                                                if (c0.x == mx * c1.x && c0.y == my * c1.y && c0.z == mz * c1.z) {
+                                        int matches = 0;
+                                        for (Cord c0 : r0) {
+                                            for (Cord c1 : r1) {
+                                                if (face == 0) {
+                                                    if (c0.x == mx * c1.x && c0.y == my * c1.y && c0.z == mz * c1.z) {
+                                                        matches++;
+                                                    }
+                                                } else if (face == 1) {
+                                                    if (c0.x == mx * c1.x && c0.z == my * c1.y && c0.y == mz * c1.z) {
+                                                        matches++;
+                                                    }
+                                                } else if (face == 2) {
+                                                    if (c0.y == mx * c1.x && c0.x == my * c1.y && c0.z == mz * c1.z) {
+                                                        matches++;
+                                                    }
+                                                } else if (face == 3) {
+                                                    if (c0.y == mx * c1.x && c0.z == my * c1.y && c0.x == mz * c1.z) {
+                                                        matches++;
+                                                    }
+                                                } else if (face == 4) {
+                                                    if (c0.z == mx * c1.x && c0.x == my * c1.y && c0.y == mz * c1.z) {
+                                                        matches++;
+                                                    }
+                                                } else if (c0.z == mx * c1.y && c0.z == my * c1.y && c0.x == mz * c1.z) {
                                                     matches++;
                                                 }
-                                            } else if (face == 1) {
-                                                if (c0.x == mx * c1.x && c0.z == my * c1.y && c0.y == mz * c1.z) {
-                                                    matches++;
-                                                }
-                                            } else if (face == 2) {
-                                                if (c0.y == mx * c1.x && c0.x == my * c1.y && c0.z == mz * c1.z) {
-                                                    matches++;
-                                                }
-                                            } else if (face == 3) {
-                                                if (c0.y == mx * c1.x && c0.z == my * c1.y && c0.x == mz * c1.z) {
-                                                    matches++;
-                                                }
-                                            } else if (face == 4) {
-                                                if (c0.z == mx * c1.x && c0.x == my * c1.y && c0.y == mz * c1.z) {
-                                                    matches++;
-                                                }
-                                            } else if (c0.z == mx * c1.y && c0.z == my * c1.y && c0.x == mz * c1.z) {
-                                                matches++;
                                             }
                                         }
-                                    }
                                     /*
                                     0: x,y,z
                                     1: x,z,y
@@ -125,52 +127,66 @@ public class Solution {
                                     4: z,x,y
                                     5: z,y,x
                                     */
-                                    if (matches >= 12) {
-                                        switch (face) {
-                                            case 0:
-                                                s_b.cord.x = b0.cord.x + -mx * b1.cord.x;
-                                                s_b.cord.y = b0.cord.y + -my * b1.cord.y;
-                                                s_b.cord.z = b0.cord.z + -mz * b1.cord.z;
-                                                break;
-                                            case 1:
-                                                s_b.cord.x = b0.cord.x + -mx * b1.cord.x;
-                                                s_b.cord.y = b0.cord.y + -my * b1.cord.z;
-                                                s_b.cord.z = b0.cord.z + -mz * b1.cord.y;
-                                                break;
-                                            case 2:
-                                                s_b.cord.x = b0.cord.x + -mx * b1.cord.y;
-                                                s_b.cord.y = b0.cord.y + -my * b1.cord.x;
-                                                s_b.cord.z = b0.cord.z + -mz * b1.cord.z;
-                                                break;
-                                            case 3:
-                                                s_b.cord.x = b0.cord.x + -mx * b1.cord.z;
-                                                s_b.cord.y = b0.cord.y + -my * b1.cord.x;
-                                                s_b.cord.z = b0.cord.z + -mz * b1.cord.y;
-                                                break;
-                                            case 4:
-                                                s_b.cord.x = b0.cord.x + -my * b1.cord.y;
-                                                s_b.cord.y = b0.cord.y + -mz * b1.cord.z;
-                                                s_b.cord.z = b0.cord.z + -mx * b1.cord.x;
-                                                break;
-                                            case 5:
-                                                s_b.cord.x = b0.cord.x + -mx * b1.cord.z;
-                                                s_b.cord.y = b0.cord.y + -my * b1.cord.y;
-                                                s_b.cord.z = b0.cord.z + -mz * b1.cord.x;
-                                                break;
+                                        if (matches >= 12) {
+                                            System.out.println(counter1);
+                                            switch (face) {
+                                                case 0:
+                                                    s_b.cord.x = b0.cord.x + -mx * b1.cord.x;
+                                                    s_b.cord.y = b0.cord.y + -my * b1.cord.y;
+                                                    s_b.cord.z = b0.cord.z + -mz * b1.cord.z;
+                                                    break;
+                                                case 1:
+                                                    s_b.cord.x = b0.cord.x + -mx * b1.cord.x;
+                                                    s_b.cord.y = b0.cord.y + -my * b1.cord.z;
+                                                    s_b.cord.z = b0.cord.z + -mz * b1.cord.y;
+                                                    break;
+                                                case 2:
+                                                    s_b.cord.x = b0.cord.x + -mx * b1.cord.y;
+                                                    s_b.cord.y = b0.cord.y + -my * b1.cord.x;
+                                                    s_b.cord.z = b0.cord.z + -mz * b1.cord.z;
+                                                    break;
+                                                case 3:
+                                                    s_b.cord.x = b0.cord.x + -mx * b1.cord.z;
+                                                    s_b.cord.y = b0.cord.y + -my * b1.cord.x;
+                                                    s_b.cord.z = b0.cord.z + -mz * b1.cord.y;
+                                                    break;
+                                                case 4:
+                                                    s_b.cord.x = b0.cord.x + -my * b1.cord.y;
+                                                    s_b.cord.y = b0.cord.y + -mz * b1.cord.z;
+                                                    s_b.cord.z = b0.cord.z + -mx * b1.cord.x;
+                                                    break;
+                                                case 5:
+                                                    s_b.cord.x = b0.cord.x + -mx * b1.cord.z;
+                                                    s_b.cord.y = b0.cord.y + -my * b1.cord.y;
+                                                    s_b.cord.z = b0.cord.z + -mz * b1.cord.x;
+                                                    break;
+                                                default:
+                                                    System.exit(1);
+                                            }
+                                            s_b.alignBeacons(face, mx, my, mz);
+                                            s_b.matched = true;
+                                            match = true;
                                         }
-                                        s_b.alignBeacons(face, mx, my, mz);
-                                        s_b.matched = true;
-                                        match = true;
+                                        face++;
                                     }
-                                    face++;
                                 }
                             }
                         }
+                        j++;
                     }
-                    j++;
+                    i++;
                 }
-                i++;
+                run = false;
+                for (int a = 1; a < myScanners.size(); a++) {
+                    if (!myScanners.get(a).matched) {
+                        run = true;
+                    }
+                }
+                counter1++;
             }
+            counter0++;
+            counter0 = counter0 == myScanners.size() ? 0 : counter0;
+            counter1 = 1;
         }
     }
 }

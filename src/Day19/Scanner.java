@@ -44,33 +44,42 @@ public class Scanner{
     public void alignBeacons(int face, int mx, int my, int mz) {
         for(Beacon b : beacons) {
             b.relativePositionsOtherBeacons.clear();
-            int x = mx*b.cord.x + cord.x;
-            int y = my*b.cord.y + cord.y;
-            int z = mz*b.cord.z + cord.z;
             if (face == 0) {
-                b.cord.x = x;
-                b.cord.y = y;
-                b.cord.z = z;
-            } else if (face ==1) {
-                b.cord.x = x;
-                b.cord.y = z;
-                b.cord.z = y;
+                b.cord.x = mx*b.cord.x + cord.x;
+                b.cord.y = my*b.cord.y + cord.y;
+                b.cord.z = mz*b.cord.z + cord.z;
+            } else if (face == 1) {
+                int p = my*b.cord.y + cord.z;
+                int q = mz*b.cord.z + cord.y;
+                b.cord.x = mx*b.cord.x + cord.x;
+                b.cord.y = p;
+                b.cord.z = q;
             } else if (face == 2) {
-                b.cord.x = y;
-                b.cord.y = x;
-                b.cord.z = z;
+                int p = my*b.cord.y + cord.x;
+                int q = mx*b.cord.x + cord.y;
+                b.cord.x = p;
+                b.cord.y = q;
+                b.cord.z = mz*b.cord.z + cord.z;
             } else if (face == 3) {
-                b.cord.x = y;
-                b.cord.y = z;
-                b.cord.z = x;
+                int p = mx*b.cord.x + cord.y;
+                int q = my*b.cord.y + cord.z;
+                int r = mz*b.cord.z + cord.x;
+                b.cord.x = r;
+                b.cord.y = p;
+                b.cord.z = q;
             } else if (face == 4) {
-                b.cord.x = z;
-                b.cord.y = x;
-                b.cord.z = y;
+                int p = mx*b.cord.x + cord.z;
+                int q = my*b.cord.y + cord.x;
+                int r = mz*b.cord.z + cord.y;
+                b.cord.x = q;
+                b.cord.y = r;
+                b.cord.z = p;
             } else {
-                b.cord.x = z;
-                b.cord.y = y;
-                b.cord.z = x;
+                int p = mx*b.cord.x + cord.z;
+                int q = mz*b.cord.z + cord.x;
+                b.cord.x = q;
+                b.cord.y = my*b.cord.y + cord.y;
+                b.cord.z = p;
             }
         }
 

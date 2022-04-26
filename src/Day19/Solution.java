@@ -28,10 +28,9 @@ public class Solution {
                     line = reader.readLine();
                 }
                 if (lineNumber == nOfLines || line.isEmpty()) {
-
+                    scanner.calculateRelativePositions();
                     myScanners.add(scanner);
                 } else if (line.contains("scanner")) {
-                    scanner.calculateRelativePositions();
                     scanner = new Scanner();
                 }
                 else {
@@ -49,9 +48,21 @@ public class Solution {
 
     public void solution() {
         createMap();
-        System.out.println(myScanners.get(1).cord.x);
-        System.out.println(myScanners.get(1).cord.y);
-        System.out.println(myScanners.get(1).cord.z);
+        System.out.println("Scanner 1: " + myScanners.get(1).cord.x + ", " + myScanners.get(1).cord.y + ", " + myScanners.get(1).cord.z);
+        System.out.println("Scanner 4: " + myScanners.get(4).cord.x + ", " + myScanners.get(4).cord.y + ", " + myScanners.get(4).cord.z);
+
+        int[] a = new int[] {68, -1246, -43};
+        int[] b = new int[] {-447, -329, 318};
+        int[] c = new int[] {743, -427, 804};
+        for (int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+                for(int k = 0; k < 3; k++) {
+                    if (a[i] + b[j] + c[k] == -20 || a[i] + b[j] + c[k] == -1133 || a[i] + b[j] + c[k] == 1061) {
+                        System.out.println(a[i] + " + " + b[j] + " + " + c[k] + " = " + (a[i] + b[j] + c[k]));
+                    }
+                }
+            }
+        }
     }
 
     public void createMap() {
@@ -62,69 +73,82 @@ public class Solution {
         scannerZero.cord.z = 0;
 
         boolean run = true;
-        boolean match = false;
 
         Scanner s_a = myScanners.get(0);
-        while(!match) {
-            Scanner s_b = myScanners.get(1);
+        for (int P = 1; P < 5; P += 3) {
+            boolean match = false;
+            if(P == 4) {
+                s_a = myScanners.get(1);
+            }
+            Scanner s_b = myScanners.get(P);
             int i = 0;
-            while(i < s_a.beacons.size() && !match) {
+            while (i < s_a.beacons.size() && !match) {
                 Beacon b0 = s_a.beacons.get(i);
                 List<Cord> r0 = b0.relativePositionsOtherBeacons;
                 int j = 0;
-                while(j < s_b.beacons.size() && !match) {
+                while (j < s_b.beacons.size() && !match) {
                     Beacon b1 = s_b.beacons.get(j);
                     List<Cord> r1 = b1.relativePositionsOtherBeacons;
-                    for(int mx = -1; mx < 2; mx += 2) {
-                        for(int my = -1; my < 2; my += 2) {
-                            for(int mz = -1; mz < 2; mz += 2) {
+                    for (int mx = -1; mx < 2; mx += 2) {
+                        for (int my = -1; my < 2; my += 2) {
+                            for (int mz = -1; mz < 2; mz += 2) {
                                 int face = 0;
-                                while(face < 6 && !match) {
-                                    /*
-                                    0: x,y,z
-                                    1: x,z,y
-                                    2: y,x,z
-                                    3: y,z,x
-                                    4: z,x,y
-                                    5: z,y,x
-                                     */
+                                while (face < 6 && !match) {
+                                /*
+                                0: x,y,z
+                                1: x,z,y
+                                2: y,x,z
+                                3: y,z,x
+                                4: z,x,y
+                                5: z,y,x
+                                 */
                                     int matches = 0;
                                     for (Cord c0 : r0) {
                                         for (Cord c1 : r1) {
-                                            if(face == 0) {
+                                            if (face == 0) {
                                                 if (c0.x == mx * c1.x && c0.y == my * c1.y && c0.z == mz * c1.z) {
                                                     matches++;
                                                 }
-                                            }
-                                            else if(face == 1) {
+                                            } else if (face == 1) {
                                                 if (c0.x == mx * c1.x && c0.z == my * c1.y && c0.y == mz * c1.z) {
                                                     matches++;
                                                 }
-                                            }
-                                            else if(face == 2) {
+                                            } else if (face == 2) {
                                                 if (c0.y == mx * c1.x && c0.x == my * c1.y && c0.z == mz * c1.z) {
                                                     matches++;
                                                 }
-                                            }
-                                            else if(face == 3) {
+                                            } else if (face == 3) {
                                                 if (c0.y == mx * c1.x && c0.z == my * c1.y && c0.x == mz * c1.z) {
                                                     matches++;
                                                 }
-                                            }
-                                            else if(face == 4) {
+                                            } else if (face == 4) {
                                                 if (c0.z == mx * c1.x && c0.x == my * c1.y && c0.y == mz * c1.z) {
                                                     matches++;
                                                 }
-                                            }
-                                            else if (c0.z == mx * c1.y && c0.z == my * c1.y && c0.x == mz * c1.z) {
+                                            } else if (c0.z == mx * c1.y && c0.z == my * c1.y && c0.x == mz * c1.z) {
                                                 matches++;
                                             }
                                         }
                                     }
+
                                     if (matches >= 12) {
-                                        s_b.cord.x = s_a.cord.x + b0.cord.x + -mx * b1.cord.x;
-                                        s_b.cord.y = s_a.cord.y + b0.cord.y + -my * b1.cord.y;
-                                        s_b.cord.z = s_a.cord.z + b0.cord.z + -mz * b1.cord.z;
+                                        System.out.println("=================");
+                                        if (P == 4) { //z,x,y
+                                            System.out.println(matches);
+                                            System.out.println(face);
+                                            System.out.println(s_a.cord.x + ", " + s_a.cord.y + ", " + s_a.cord.z);
+                                            System.out.println(b0.cord.x + ", " + b0.cord.y + ", " +  b0.cord.z);
+                                            System.out.println(-mx * b1.cord.x + ", " + -mx * b1.cord.y + ", " + -mx * b1.cord.z);
+                                            System.out.println("=================");
+                                            s_b.cord.x = s_a.cord.x + b0.cord.z + -mx * b1.cord.x;
+                                            s_b.cord.y = s_a.cord.y + b0.cord.x + -my * b1.cord.y;
+                                            s_b.cord.z = s_a.cord.z + b0.cord.y + -mz * b1.cord.z;
+                                        } else {
+                                            s_b.cord.x = s_a.cord.x + b0.cord.x + -mx * b1.cord.x;
+                                            s_b.cord.y = s_a.cord.y + b0.cord.y + -my * b1.cord.y;
+                                            s_b.cord.z = s_a.cord.z + b0.cord.z + -mz * b1.cord.z;
+                                        }
+                                        s_b.alignBeacons(face, mx, my, mz);
                                         s_b.matched = true;
                                         match = true;
                                     }

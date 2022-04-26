@@ -48,11 +48,53 @@ public class Solution {
 
     public void solution() {
         createMap();
-
-        for(int i = 0; i < 5; i++) {
-            System.out.println("Scanner " + i + ": " + myScanners.get(i).cord.x + ", " + myScanners.get(i).cord.y + ", " + myScanners.get(i).cord.z);
+        List<Cord> allBeacons = new ArrayList<>();
+        for(Scanner s : myScanners) {
+            System.out.println(s.cord.x + ", " + s.cord.y + ", " + s.cord.z);
+            for (Beacon b : s.beacons) {
+                if(allBeacons.isEmpty()) {
+                    allBeacons.add(b.cord);
+                } else {
+                    int result = binarySearch(allBeacons, b.cord);
+                    if (result != -2021) {
+                        allBeacons.add(result, b.cord);
+                    }
+                }
+            }
         }
+        System.out.println(allBeacons.size());
     }
+
+    public int binarySearch(List<Cord> list, Cord toFind) {
+        int l = 0;
+        int r = list.size() - 1;
+        while (l <= r) {
+            int m = (l + r) / 2;
+            Cord c = list.get(m);
+            if(c.x == toFind.x) {
+                if(c.y == toFind.y) {
+                    if(c.z == toFind.z) {
+                        return -2021;
+                    } else if (c.z < toFind.z) {
+                        l = m + 1;
+                    } else {
+                        r = m - 1;
+                    }
+                } else if (c.y < toFind.y) {
+                    l = m + 1;
+                } else {
+                    r = m - 1;
+                }
+            } else if (c.x < toFind.x) {
+                l = m + 1;
+            } else {
+                r = m - 1;
+            }
+        }
+        return r + 1;
+    }
+
+
 
     public void createMap() {
         Scanner scannerZero = myScanners.get(0);
@@ -122,7 +164,6 @@ public class Solution {
                                                     }
                                                 }
                                                 if (matches >= 12) {
-                                                    System.out.println(counter0 + ", " + counter1 + ", " + face);
                                                     switch (face) {
                                                         case 0:
                                                             s_b.cord.x = b0.cord.x - mx * b1.cord.x;

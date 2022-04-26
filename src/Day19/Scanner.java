@@ -52,8 +52,8 @@ public class Scanner{
                 int p = my*b.cord.y + cord.z;
                 int q = mz*b.cord.z + cord.y;
                 b.cord.x = mx*b.cord.x + cord.x;
-                b.cord.y = p;
-                b.cord.z = q;
+                b.cord.y = q;
+                b.cord.z = p;
             } else if (face == 2) {
                 int p = my*b.cord.y + cord.x;
                 int q = mx*b.cord.x + cord.y;

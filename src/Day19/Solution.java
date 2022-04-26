@@ -17,8 +17,8 @@ public class Solution {
 
     public void setup() {
         try {
-            int nOfLines = 136;
-            BufferedReader reader = new BufferedReader(new FileReader("src/Day19/example.txt"));
+            int nOfLines = 832;
+            BufferedReader reader = new BufferedReader(new FileReader("src/Day19/input.txt"));
             int lineNumber = 0;
             myScanners = new ArrayList<>();
             Scanner scanner = new Scanner();
@@ -47,10 +47,10 @@ public class Solution {
     }
 
     public void solution() {
+        System.out.println("File loaded, making calculations.\nPlease be patient.");
         createMap();
         List<Cord> allBeacons = new ArrayList<>();
         for(Scanner s : myScanners) {
-            System.out.println(s.cord.x + ", " + s.cord.y + ", " + s.cord.z);
             for (Beacon b : s.beacons) {
                 if(allBeacons.isEmpty()) {
                     allBeacons.add(b.cord);
@@ -62,7 +62,23 @@ public class Solution {
                 }
             }
         }
-        System.out.println(allBeacons.size());
+        System.out.println("amount of beacons: " + allBeacons.size());
+
+        int manhattanDistance = 0;
+        for(int i = 0; i < myScanners.size(); i++) {
+            Cord ic = myScanners.get(i).cord;
+            int ix = ic.x;
+            int iy = ic.y;
+            int iz = ic.z;
+            for(int j = i + 1; j < myScanners.size(); j++) {
+                Cord jc = myScanners.get(j).cord;
+                int jx = jc.x;
+                int jy = jc.y;
+                int jz = jc.z;
+                manhattanDistance = Math.max(manhattanDistance, Math.abs(jx-ix)+Math.abs(jy-iy)+Math.abs(jz-iz));
+            }
+        }
+        System.out.println("large manhattan distance: " + manhattanDistance);
     }
 
     public int binarySearch(List<Cord> list, Cord toFind) {

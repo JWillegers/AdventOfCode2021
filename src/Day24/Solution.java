@@ -3,13 +3,13 @@ package Day24;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 
-//https://github.com/dphilipson/advent-of-code-2021/blob/master/src/days/day24.rs
 public class Solution {
     private int nOfLines = 252;
-    private String[] array = new String[nOfLines];
+    private int[] array = new int[nOfLines];
 
     public static void main(String[] args) {
         Solution part = new Solution();
@@ -21,7 +21,14 @@ public class Solution {
         try {
             BufferedReader reader = new BufferedReader(new FileReader("src/Day24/input.txt"));
             for (int i = 0; i < nOfLines; i++) {
-                array[i] = reader.readLine();
+                String[] line = reader.readLine().split(" ");
+                if(line.length > 2) {
+                    try {
+                        array[i] = Integer.parseInt(line[2]);
+                    } catch (NumberFormatException e) {
+                        continue;
+                    }
+                }
             }
             reader.close();
         } catch (IOException e) {
@@ -30,83 +37,102 @@ public class Solution {
         }
     }
 
-    public void solution() {
-        HashMap<String, Long> variables = new HashMap<>();
-        long monad = 9999999 + (long) 9999999 * 10000000;
-        boolean run = true;
-        while (run && monad >= 1111111 + (long) 1111111 * 10000000) {
-            variables.put("w", (long) 0);
-            variables.put("x", (long) 0);
-            variables.put("y", (long) 0);
-            variables.put("z", (long) 0);
-            if (!String.valueOf(monad).contains("0")) {
-                int pointer = 0;
-                for (int i = 0; i < nOfLines; i++) {
-                    String[] line = array[i].split(" ");
-                    String register = line[1];
-                    long value1= variables.get(register);
-                    long value2 = -1;
-                    try {
-                        value2 += Integer.parseInt(line[2]);
-                    } catch (NumberFormatException e) {
-                        value2 += variables.get(line[2]);
-                    } catch (IndexOutOfBoundsException ignore) {}
-                    switch (line[0]) {
-                        case "inp":
-                            long number = Long.parseLong(String.valueOf(String.valueOf(monad).charAt(pointer)));
-                            variables.put(register, number);
-                            pointer++;
-                            break;
-                        case "add":
-                            variables.put(register, value1 + value2);
-                            break;
-                        case "mul":
-                            variables.put(register, value1 * value2);
-                            break;
-                        case "div":
-                            if (value2 != 0) {
-                                variables.put(register, (long) Math.floor((double) value1 / value2));
-                            }
-                            break;
-                        case "mod":
-                            if (value1 > 0 && value2 > 0) {
-                                variables.put(register, value1 % value2);
-                            }
-                            break;
-                        case "eql":
-                            variables.put(register, value1 == value2 ? (long) 1 : (long) 0);
-                            break;
-                        default:
-                            System.exit(1);
-                    }
-                }
 
-                if (variables.get("z") == (long) 0) {
-                    run = false;
-                } else {
-                    monad--;
+    /*
+    This part (18 lines) is repeated 14 times:
+    inp w
+    mul x 0
+    add x z
+    mod x 26
+    div z {a}
+    add x {b}
+    eql x w
+    eql x 0
+    mul y 0
+    add y 25
+    mul y x
+    add y 1
+    mul z y
+    mul y 0
+    add y w
+    add y {c}
+    mul y x
+    add z y
+
+    w is a digit in the input (the monad number we are testing)
+
+    From where we can find:
+    x = (z%26+{b}) != w
+    y = 25*x+1
+    z = z/{a}
+    z = z * y
+    y = (w + {c}) * x
+    z = z + y
+
+    becomes:
+    z[now] = z[previous]/{a} * (25*((z[previous]%26+{b}) != w)+1) + (w + {c}) * (z[previous]%26+{b}) != w)
+
+    Valid number if 0 is not in the number and when after running z=0
+
+    {a} is located at line%18=4
+    {b} is located at line%18=5
+    {c} is located at line%18=15
+     */
+    public void solution() {
+        int z = 0;
+        int n = nOfLines - 1;
+        int mod = 26;
+        List<Monad> options = new ArrayList<>();
+
+        int w = 9;
+        int a = array[n - 13];
+        int b = array[n - 12];
+        int c = array[n - 2];
+        while(w > 0) {
+            for (int i = mod - 1; i > 0; i--) {
+                int t = ((i % 26 + b) != w) ? 1 : 0;
+                if ((i / a * (25 * (t + 1)) + t * (w + c)) == z) {
+                    options.add(new Monad(String.valueOf(w), i));
                 }
-            } else {
-                String number = String.valueOf(monad);
-                String newNumber = "";
-                boolean zeroFound = false;
-                for (int i = 0; i < number.length(); i++) {
-                    if (i == 0) {
-                        newNumber += number.charAt(0);
-                    } else if (zeroFound) {
-                        newNumber += "9";
-                    } else if (number.charAt(i) == '0') {
-                        newNumber = newNumber.substring(0, newNumber.length() - 1);
-                        newNumber += Integer.parseInt(String.valueOf(number.charAt(i - 1))) - 1;
-                        newNumber += "9";
-                        zeroFound = true;
-                    } else {
-                        newNumber += Integer.parseInt(String.valueOf(number.charAt(i)));
+            }
+            w--;
+        }
+
+        while(options.get(0).s.length() < 14) {
+            Monad m = options.remove(0);
+            if(m.s.length() < 3) {
+                System.out.println(m.s.length() + ": " + m.s + ", " + m.z);
+            }
+            a = array[n - 13 - 18 * m.s.length()];
+            b = array[n - 12 - 18 * m.s.length()];
+            c = array[n - 2 - 18 * m.s.length()];
+            z = m.z;
+            w = 9;
+            while(w > 0) {
+                for (int i = mod - 1; i >= 0; i--) {
+                    int t = ((i % mod + b) != w) ? 1 : 0;
+                    if ((i / a * (25 * (t + 1)) + t * (w + c)) == z) {
+                        options.add(new Monad(w+m.s, i));
                     }
                 }
-                monad = Long.parseLong(newNumber);
+                w--;
             }
         }
+
+        int monad = 0;
+        for(Monad m : options) {
+            monad = Math.max(monad, Integer.parseInt(m.s));
+        }
         System.out.println(monad);
+    }
+
+    private class Monad {
+        String s;
+        int z;
+
+        public Monad(String s, int z) {
+            this.s = s;
+            this.z = z;
+        }
     }
 }

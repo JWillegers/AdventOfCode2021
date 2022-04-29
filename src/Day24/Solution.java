@@ -10,11 +10,11 @@ import java.util.List;
 public class Solution {
     private int nOfLines = 252;
     private int[] array = new int[nOfLines];
+    private List<String> monad;
 
     public static void main(String[] args) {
         Solution part = new Solution();
         part.setup();
-        part.solution();
     }
 
     public void setup() {
@@ -31,6 +31,14 @@ public class Solution {
                 }
             }
             reader.close();
+            monad = new ArrayList<>();
+            solution("", 0, nOfLines - 1);
+            int higestMonad = 0;
+            for(String s : monad) {
+                higestMonad = Math.max(higestMonad, Integer.parseInt(s));
+            }
+            System.out.println(higestMonad);
+
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -78,61 +86,25 @@ public class Solution {
     {b} is located at line%18=5
     {c} is located at line%18=15
      */
-    public void solution() {
-        int n = nOfLines - 1;
-        int mod = 26;
-        List<Monad> options = new ArrayList<>();
-
+    public void solution(String s, int z, int n) {
+        System.out.println(s.length() + ": " + s);
         int w = 9;
         int a = array[n - 13];
         int b = array[n - 12];
         int c = array[n - 2];
         while(w > 0) {
-            for (int i = mod - 1; i >= 0; i--) {
-                int t = ((i % mod + b) == w) ? 0 : 1;
-                if (((i / a) * (25 * t + 1) + t * (w + c)) == 0) {
-                    options.add(new Monad(String.valueOf(w), i));
-                }
-            }
-            w--;
-        }
-
-        int largest = 0;
-        while(options.get(0).s.length() < 14) {
-            Monad m = options.remove(0);
-            if(m.s.length() > largest) {
-                System.out.println(m.s.length());
-                largest = m.s.length();
-            }
-            a = array[n - 13 - 18 * m.s.length()];
-            b = array[n - 12 - 18 * m.s.length()];
-            c = array[n - 2 - 18 * m.s.length()];
-            w = 9;
-            while(w > 0) {
-                for (int i = mod-1; i >= 0; i--) {
-                    int t = ((i % mod + b) == w) ? 0 : 1;
-                    if (((i / a) * (25 * t + 1) + t * (w + c)) == m.z) {
-                        options.add(new Monad(w+m.s, i));
+            for (int i = 25; i >= 0; i--) {
+                int t = ((i % 26 + b) == w) ? 0 : 1;
+                if (((i / a) * (25 * t + 1) + t * (w + c)) == z) {
+                    if (s.length() == 13) {
+                        monad.add(w + s);
+                    } else {
+                        solution(w + s, i, n - 18);
                     }
                 }
-                w--;
             }
-        }
 
-        int monad = 0;
-        for(Monad m : options) {
-            monad = Math.max(monad, Integer.parseInt(m.s));
-        }
-        System.out.println(monad);
-    }
-
-    private class Monad {
-        String s;
-        int z;
-
-        public Monad(String s, int z) {
-            this.s = s;
-            this.z = z;
+            w--;
         }
     }
 }

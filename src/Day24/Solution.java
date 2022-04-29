@@ -79,7 +79,6 @@ public class Solution {
     {c} is located at line%18=15
      */
     public void solution() {
-        int z = 0;
         int n = nOfLines - 1;
         int mod = 26;
         List<Monad> options = new ArrayList<>();
@@ -89,29 +88,30 @@ public class Solution {
         int b = array[n - 12];
         int c = array[n - 2];
         while(w > 0) {
-            for (int i = mod - 1; i > 0; i--) {
-                int t = ((i % 26 + b) != w) ? 1 : 0;
-                if ((i / a * (25 * (t + 1)) + t * (w + c)) == z) {
+            for (int i = mod - 1; i >= 0; i--) {
+                int t = ((i % mod + b) == w) ? 0 : 1;
+                if (((i / a) * (25 * t + 1) + t * (w + c)) == 0) {
                     options.add(new Monad(String.valueOf(w), i));
                 }
             }
             w--;
         }
 
+        int largest = 0;
         while(options.get(0).s.length() < 14) {
             Monad m = options.remove(0);
-            if(m.s.length() < 3) {
-                System.out.println(m.s.length() + ": " + m.s + ", " + m.z);
+            if(m.s.length() > largest) {
+                System.out.println(m.s.length());
+                largest = m.s.length();
             }
             a = array[n - 13 - 18 * m.s.length()];
             b = array[n - 12 - 18 * m.s.length()];
             c = array[n - 2 - 18 * m.s.length()];
-            z = m.z;
             w = 9;
             while(w > 0) {
-                for (int i = mod - 1; i >= 0; i--) {
-                    int t = ((i % mod + b) != w) ? 1 : 0;
-                    if ((i / a * (25 * (t + 1)) + t * (w + c)) == z) {
+                for (int i = mod-1; i >= 0; i--) {
+                    int t = ((i % mod + b) == w) ? 0 : 1;
+                    if (((i / a) * (25 * t + 1) + t * (w + c)) == m.z) {
                         options.add(new Monad(w+m.s, i));
                     }
                 }

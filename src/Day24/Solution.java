@@ -10,7 +10,6 @@ import java.util.List;
 public class Solution {
     private int nOfLines = 252;
     private int[] array = new int[nOfLines];
-    private List<String> monad;
 
     public static void main(String[] args) {
         Solution part = new Solution();
@@ -31,13 +30,7 @@ public class Solution {
                 }
             }
             reader.close();
-            monad = new ArrayList<>();
-            solution("", 0, nOfLines - 1);
-            int higestMonad = 0;
-            for(String s : monad) {
-                higestMonad = Math.max(higestMonad, Integer.parseInt(s));
-            }
-            System.out.println(higestMonad);
+            solution();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -70,7 +63,7 @@ public class Solution {
     w is a digit in the input (the monad number we are testing)
 
     From where we can find:
-    x = (z%26+{b}) != w
+    x = (z%26+{b}) == w ? 0 : 1
     y = 25*x+1
     z = z/{a}
     z = z * y
@@ -86,25 +79,9 @@ public class Solution {
     {b} is located at line%18=5
     {c} is located at line%18=15
      */
-    public void solution(String s, int z, int n) {
-        System.out.println(s.length() + ": " + s);
-        int w = 9;
-        int a = array[n - 13];
-        int b = array[n - 12];
-        int c = array[n - 2];
-        while(w > 0) {
-            for (int i = 25; i >= 0; i--) {
-                int t = ((i % 26 + b) == w) ? 0 : 1;
-                if (((i / a) * (25 * t + 1) + t * (w + c)) == z) {
-                    if (s.length() == 13) {
-                        monad.add(w + s);
-                    } else {
-                        solution(w + s, i, n - 18);
-                    }
-                }
-            }
-
-            w--;
-        }
+    public void solution() {
+       for(int i = 0; i < nOfLines; i+= 18) {
+           System.out.println(array[i+4] + ", " + array[i+5] + ", " + array[i+15] );
+       }
     }
 }

@@ -24,13 +24,13 @@ public class PartB {
                 String line = reader.readLine();
                 String[] split = line.split("[,=.]");
                 /*
-                        [0] => "on x" or "off x"
-                        [1] => min x
-                        [3] => max x
-                        [5] => min y
-                        [7] => max y
-                        [9] => min z
-                        [11] => max z
+                [0] => "on x" or "off x"
+                [1] => min x
+                [3] => max x
+                [5] => min y
+                [7] => max y
+                [9] => min z
+                [11] => max z
                 */
                 RebootStep r = new RebootStep();
                 r.on = split[0].contains("on");
@@ -68,7 +68,8 @@ public class PartB {
         for (int i = nOfLines - 2; i >= 0; i--) {
             boolean run = true;
             for (int j = i + 1; j < nOfLines; j++) {
-                List<Integer> innerpoints = new ArrayList<>();
+                //check how many corners of i lie in j
+                List<Cord> innerpoints = new ArrayList<>();
                 Cord cj_min = input.get(j).originalCorners.get(0);
                 Cord cj_max = input.get(j).originalCorners.get(7);
                 for(Cord ci : input.get(i).adjustedCorners) {
@@ -76,103 +77,61 @@ public class PartB {
                     if (cj_min.x < ci.x && ci.x < cj_max.x
                         && cj_min.y < ci.y && ci.y < cj_max.y
                         && cj_min.z < ci.z && ci.z < cj_max.z) {
-                        innerpoints.add(input.get(i).adjustedCorners.indexOf(ci));
+                        innerpoints.add(ci);
                     }
                 }
-                //https://stackoverflow.com/questions/21037241/how-to-determine-a-point-is-inside-or-outside-a-cube#:~:text=Construct%20the%20direction%20vector%20from,is%20outside%20of%20the%20cube.
-                switch (innerpoints.size()) {
-                    case 0:
-                        //2 disjoint cubes, do nothing
-                        break;
-                    case 1:
-                        int posX = 0;
-                        int posY = 0;
-                        int posZ = 0;
-                        List<Cord> cordListI = input.get(i).adjustedCorners;
-                        Cord ci = cordListI.get(innerpoints.get(0));
-                        for (int k = 0; k < input.get(i).adjustedCorners.size(); k++) {
-                            if (k != innerpoints.get(0)) {
-                                Cord ck = cordListI.get(k);
-                                if(ck.x == ci.x && ck.y == ci.y) {
-                                    posZ = ck.z < ci.z ? -1 : 1;
-                                } else if (ck.z == ci.z && ck.y == ci.y) {
-                                    posX = ck.x < ci.x ? -1 : 1;
-                                } else if (ck.x == ci.x && ck.z == ci.z) {
-                                    posY = ck.y < ci.y ? -1 : 1;
+                if (innerpoints.size() == input.get(i).adjustedCorners.size()) {
+                    run = false;
+                } else if (!innerpoints.isEmpty()) {
+                    List<Cord> cordList = input.get(i).adjustedCorners;
+                    //Find edges of i which intersect with faces of j
+                    List<Edge> x = new ArrayList<>();
+                    List<Edge> y = new ArrayList<>();
+                    List<Edge> z = new ArrayList<>();
+                    for(Cord cl : cordList) {
+                        if(!innerpoints.contains(cl)) {
+                            for(Cord cip : innerpoints) {
+                                if(cl.x == cip.x && cl.y == cip.y) {
+                                    z.add(new Edge(cl.z, cl.z > cip.z, cip));
+                                } else if (cl.x == cip.x && cl.z == cip.z) {
+                                    y.add(new Edge(cl.y, cl.y > cip.y, cip));
+                                } else if (cl.y == cip.y && cl.z == cip.z) {
+                                    x.add(new Edge(cl.x, cl.x > cip.x, cip));
                                 }
                             }
                         }
-
-                        int x = 0;
-                        int y = 0;
-                        int z = 0;
-
-                        List<Cord> cordListJ = input.get(j).originalCorners;
-                        for(int k = 0; k < 8; k++) {
-                            Cord ck = cordListJ.get(k);
-                            if (posX == 1 && ck.x > ci.x) {
-                                if (posY == 1 && ck.y > ci.y) {
-                                    if (posZ == 1 && ck.z > ci.z) {
-                                        x = ck.x;
-                                        y = ck.y;
-                                        z = ck.z;
-                                    } else if (posZ == -1 && ck.z < ci.z) {
-                                        x = ck.x;
-                                        y = ck.y;
-                                        z = ck.z;
-                                    }
-                                } else {
-                                    if (posY == -1 && ck.y > ci.y) {
-                                        if (posZ == 1 && ck.z > ci.z) {
-                                            x = ck.x;
-                                            y = ck.y;
-                                            z = ck.z;
-                                        } else if (posZ == -1 && ck.z < ci.z) {
-                                            x = ck.x;
-                                            y = ck.y;
-                                            z = ck.z;
-                                        }
-                                    }
-                                }
-                            } else if (posX == -1 && ck.x < ci.x) {
-                                if (posY == 1 && ck.y > ci.y) {
-                                    if (posZ == 1 && ck.z > ci.z) {
-                                        x = ck.x;
-                                        y = ck.y;
-                                        z = ck.z;
-                                    } else if (posZ == -1 && ck.z < ci.z) {
-                                        x = ck.x;
-                                        y = ck.y;
-                                        z = ck.z;
-                                    }
-                                } else {
-                                    if (posY == -1 && ck.y > ci.y) {
-                                        if (posZ == 1 && ck.z > ci.z) {
-                                            x = ck.x;
-                                            y = ck.y;
-                                            z = ck.z;
-                                        } else if (posZ == -1 && ck.z < ci.z) {
-                                            x = ck.x;
-                                            y = ck.y;
-                                            z = ck.z;
-                                        }
-                                    }
-                                }
-                            }
+                    }
+                    //remove old corners and add new ones
+                    for(Cord c : innerpoints) {
+                        cordList.remove(c);
+                    }
+                    for(Edge e : x) {
+                        int thirdCord;
+                        if (e.positiveDirection) {
+                            thirdCord = cj_max.x;
+                        } else {
+                            thirdCord = cj_min.x;
                         }
-                        break;
-                    case 2:
-                        //TODO
-                        break;
-                    case 4:
-                        //TODO
-                        break;
-                    case 8:
-                        run = false;
-                        break;
-                    default:
-                        System.out.println("IMPLEMENT THIS: " + innerpoints.size());
-                        System.exit(777);
+                        cordList.add(new Cord(thirdCord, e.cord.y, e.cord.z));
+                    }
+                    for(Edge e : y) {
+                        int thirdCord;
+                        if (e.positiveDirection) {
+                            thirdCord = cj_max.y;
+                        } else {
+                            thirdCord = cj_min.y;
+                        }
+                        cordList.add(new Cord(e.cord.x, thirdCord, e.cord.z));
+                    }
+                    for(Edge e : z) {
+                        int thirdCord ;
+                        if (e.positiveDirection) {
+                            thirdCord = cj_max.z;
+                        } else {
+                            thirdCord = cj_min.z;
+                        }
+                        cordList.add(new Cord(e.cord.x, e.cord.y, thirdCord));
+                    }
                 }
                 if (!run) {
                     break;
@@ -183,10 +142,19 @@ public class PartB {
                 count += 1;
             }
         }
-
-
-
-
         System.out.println(count);
+    }
+
+    class Edge {
+        int number;
+        boolean positiveDirection;
+        Cord cord;
+
+        protected Edge(int n, boolean b, Cord c) {
+            this.cord = c;
+            this.number = n;
+            this.positiveDirection = b;
+        }
+
     }
 }

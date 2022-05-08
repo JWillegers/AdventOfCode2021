@@ -76,7 +76,7 @@ public class PartB {
                     if (cj_min.x < ci.x && ci.x < cj_max.x
                         && cj_min.y < ci.y && ci.y < cj_max.y
                         && cj_min.z < ci.z && ci.z < cj_max.z) {
-                        innerpoints.add(i);
+                        innerpoints.add(input.get(i).adjustedCorners.indexOf(ci));
                     }
                 }
                 //https://stackoverflow.com/questions/21037241/how-to-determine-a-point-is-inside-or-outside-a-cube#:~:text=Construct%20the%20direction%20vector%20from,is%20outside%20of%20the%20cube.
@@ -85,26 +85,80 @@ public class PartB {
                         //2 disjoint cubes, do nothing
                         break;
                     case 1:
-                        int x = 0;
-                        int y = 0;
-                        int z = 0;
+                        int posX = 0;
+                        int posY = 0;
+                        int posZ = 0;
                         List<Cord> cordListI = input.get(i).adjustedCorners;
                         Cord ci = cordListI.get(innerpoints.get(0));
                         for (int k = 0; k < input.get(i).adjustedCorners.size(); k++) {
                             if (k != innerpoints.get(0)) {
-                                if(cordListI.get(k).x == ci.x) {
-                                    //TODO
-                                } else if (cordListI.get(k).y == ci.y) {
-                                    //TOOD
-                                } else if (cordListI.get(k).z == ci.z) {
-                                    //TODO
+                                Cord ck = cordListI.get(k);
+                                if(ck.x == ci.x && ck.y == ci.y) {
+                                    posZ = ck.z < ci.z ? -1 : 1;
+                                } else if (ck.z == ci.z && ck.y == ci.y) {
+                                    posX = ck.x < ci.x ? -1 : 1;
+                                } else if (ck.x == ci.x && ck.z == ci.z) {
+                                    posY = ck.y < ci.y ? -1 : 1;
                                 }
                             }
                         }
 
+                        int x = 0;
+                        int y = 0;
+                        int z = 0;
+
                         List<Cord> cordListJ = input.get(j).originalCorners;
                         for(int k = 0; k < 8; k++) {
-
+                            Cord ck = cordListJ.get(k);
+                            if (posX == 1 && ck.x > ci.x) {
+                                if (posY == 1 && ck.y > ci.y) {
+                                    if (posZ == 1 && ck.z > ci.z) {
+                                        x = ck.x;
+                                        y = ck.y;
+                                        z = ck.z;
+                                    } else if (posZ == -1 && ck.z < ci.z) {
+                                        x = ck.x;
+                                        y = ck.y;
+                                        z = ck.z;
+                                    }
+                                } else {
+                                    if (posY == -1 && ck.y > ci.y) {
+                                        if (posZ == 1 && ck.z > ci.z) {
+                                            x = ck.x;
+                                            y = ck.y;
+                                            z = ck.z;
+                                        } else if (posZ == -1 && ck.z < ci.z) {
+                                            x = ck.x;
+                                            y = ck.y;
+                                            z = ck.z;
+                                        }
+                                    }
+                                }
+                            } else if (posX == -1 && ck.x < ci.x) {
+                                if (posY == 1 && ck.y > ci.y) {
+                                    if (posZ == 1 && ck.z > ci.z) {
+                                        x = ck.x;
+                                        y = ck.y;
+                                        z = ck.z;
+                                    } else if (posZ == -1 && ck.z < ci.z) {
+                                        x = ck.x;
+                                        y = ck.y;
+                                        z = ck.z;
+                                    }
+                                } else {
+                                    if (posY == -1 && ck.y > ci.y) {
+                                        if (posZ == 1 && ck.z > ci.z) {
+                                            x = ck.x;
+                                            y = ck.y;
+                                            z = ck.z;
+                                        } else if (posZ == -1 && ck.z < ci.z) {
+                                            x = ck.x;
+                                            y = ck.y;
+                                            z = ck.z;
+                                        }
+                                    }
+                                }
+                            }
                         }
                         break;
                     case 2:

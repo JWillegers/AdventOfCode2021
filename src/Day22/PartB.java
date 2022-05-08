@@ -34,9 +34,20 @@ public class PartB {
                 */
                 RebootStep r = new RebootStep();
                 r.on = split[0].contains("on");
+                /*
+                Order of originalCorners:
+                min, min, min
+                min, min, max
+                min, max, min
+                min, max, max
+                max, min, min
+                max, min, max
+                max, max, min
+                max, max, max
+                 */
                 for(int x = 1; x < 4; x+= 2) {
                     for(int y = 5; y < 8; y += 2) {
-                        for(int z = 9; z < 10; z+= 2) {
+                        for(int z = 9; z < 12; z+= 2) {
                             Cord c = new Cord(Integer.parseInt(split[x]), Integer.parseInt(split[y]), Integer.parseInt(split[z]));
                             r.originalCorners.add(c);
                             r.adjustedCorners.add(c);
@@ -55,12 +66,70 @@ public class PartB {
     public void solution() {
         long count = 0;
         for (int i = nOfLines - 2; i >= 0; i--) {
+            boolean run = true;
             for (int j = i + 1; j < nOfLines; j++) {
-                for(Cord c : input.get(j).originalCorners) {
-
+                List<Integer> innerpoints = new ArrayList<>();
+                Cord cj_min = input.get(j).originalCorners.get(0);
+                Cord cj_max = input.get(j).originalCorners.get(7);
+                for(Cord ci : input.get(i).adjustedCorners) {
+                    //min_x <= ci.x <= max_x and min_y <= ci.y <= max_y and min_z <= ci.z <= max_z
+                    if (cj_min.x < ci.x && ci.x < cj_max.x
+                        && cj_min.y < ci.y && ci.y < cj_max.y
+                        && cj_min.z < ci.z && ci.z < cj_max.z) {
+                        innerpoints.add(i);
+                    }
                 }
+                //https://stackoverflow.com/questions/21037241/how-to-determine-a-point-is-inside-or-outside-a-cube#:~:text=Construct%20the%20direction%20vector%20from,is%20outside%20of%20the%20cube.
+                switch (innerpoints.size()) {
+                    case 0:
+                        //2 disjoint cubes, do nothing
+                        break;
+                    case 1:
+                        int x = 0;
+                        int y = 0;
+                        int z = 0;
+                        List<Cord> cordListI = input.get(i).adjustedCorners;
+                        Cord ci = cordListI.get(innerpoints.get(0));
+                        for (int k = 0; k < input.get(i).adjustedCorners.size(); k++) {
+                            if (k != innerpoints.get(0)) {
+                                if(cordListI.get(k).x == ci.x) {
+                                    //TODO
+                                } else if (cordListI.get(k).y == ci.y) {
+                                    //TOOD
+                                } else if (cordListI.get(k).z == ci.z) {
+                                    //TODO
+                                }
+                            }
+                        }
+
+                        List<Cord> cordListJ = input.get(j).originalCorners;
+                        for(int k = 0; k < 8; k++) {
+
+                        }
+                        break;
+                    case 2:
+                        //TODO
+                        break;
+                    case 4:
+                        //TODO
+                        break;
+                    case 8:
+                        run = false;
+                        break;
+                    default:
+                        System.out.println("IMPLEMENT THIS: " + innerpoints.size());
+                        System.exit(777);
+                }
+                if (!run) {
+                    break;
+                }
+
+            }
+            if (run) {
+                count += 1;
             }
         }
+
 
 
 

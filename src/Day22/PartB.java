@@ -88,6 +88,8 @@ public class PartB {
                 if (pointsOfIinJ.size() == allCornersOfI.size()) {
                     run = false;
                 } else if (!pointsOfIinJ.isEmpty()) {
+                    System.out.println("cj_min: " + cj_min.x + ", " + cj_min.y + ", " + cj_min.z);
+                    System.out.println("cj_max: " + cj_max.x + ", " + cj_max.y + ", " + cj_max.z);
                     //Check for edges to other point i in j
                     for (int a = 0; a < pointsOfIinJ.size(); a++) {
                         Cord pointA = pointsOfIinJ.get(a);
@@ -174,8 +176,14 @@ public class PartB {
                         }
                         if (innerrun) {
                             System.out.println(edges.size());
-                            int[][] alreadyPlacesCorners = new int[2*edges.size()][3];
-                            int counter = 0;
+                            int[][] alreadyPlacesCorners = new int[2*edges.size()+ pointsOfIinJ.size()][3];
+                            for (int a = 0; a < pointsOfIinJ.size(); a++) { //preventing deleted corners from being added again
+                                Cord c = pointsOfIinJ.get(a);
+                                alreadyPlacesCorners[a][0] = c.x;
+                                alreadyPlacesCorners[a][1] = c.y;
+                                alreadyPlacesCorners[a][2] = c.z;
+                            }
+                            int counter = pointsOfIinJ.size();
                             for(int a = 0; a < edges.size(); a++) {
                                 Cord ca = edges.get(a);
                                 for(int b = a + 1; b < edges.size(); b++) {

@@ -65,7 +65,7 @@ public class PartB {
 
     public void solution() {
         long count = 0;
-        for (int i = nOfLines - 2; i >= 0; i--) {
+        for (int i = nOfLines - 2; i >= 20; i--) {
             Cord i_min = input.get(i).originalCorners.get(0);
             Cord i_max = input.get(i).originalCorners.get(7);
             long volume = Math.abs((i_max.x-i_min.x)*(i_max.y-i_min.y)*(i_max.z-i_min.z));
@@ -149,9 +149,28 @@ public class PartB {
                     }
                     allCornersOfI.addAll(toAdd);
 
+                    for (Cord c : toAdd) {
+                        System.out.println("ADD: " + c.x + ", " + c.y + ", " + c.z);
+                    }
+
 
                     boolean innerrun = true;
-                    while(innerrun) {
+                    int crazy = 0;
+                    int[][] oldAlreadyPlacesCorners = new int[pointsOfIinJ.size()+toAdd.size()][3];
+                    for (int a = 0; a < pointsOfIinJ.size(); a++) { //preventing deleted corners from being added again
+                        Cord c = pointsOfIinJ.get(a);
+                        oldAlreadyPlacesCorners[a][0] = c.x;
+                        oldAlreadyPlacesCorners[a][1] = c.y;
+                        oldAlreadyPlacesCorners[a][2] = c.z;
+                    }
+                    for (int a = pointsOfIinJ.size(); a < toAdd.size() + pointsOfIinJ.size(); a++) { //preventing already added corners from being added again
+                        Cord c = toAdd.get(a - pointsOfIinJ.size());
+                        oldAlreadyPlacesCorners[a][0] = c.x;
+                        oldAlreadyPlacesCorners[a][1] = c.y;
+                        oldAlreadyPlacesCorners[a][2] = c.z;
+                    }
+                    while(innerrun && crazy < 5) {
+                        crazy++;
                         //check if every corner has some edge in x,y,z
                         innerrun = false;
                         List<Cord> edges = new ArrayList<>();
@@ -175,71 +194,72 @@ public class PartB {
                             }
                         }
                         if (innerrun) {
-                            System.out.println(edges.size());
-                            int[][] alreadyPlacesCorners = new int[2*edges.size()+ pointsOfIinJ.size()][3];
-                            for (int a = 0; a < pointsOfIinJ.size(); a++) { //preventing deleted corners from being added again
-                                Cord c = pointsOfIinJ.get(a);
-                                alreadyPlacesCorners[a][0] = c.x;
-                                alreadyPlacesCorners[a][1] = c.y;
-                                alreadyPlacesCorners[a][2] = c.z;
+                            int[][] alreadyPlacesCorners = new int[2*edges.size()+oldAlreadyPlacesCorners.length][3];
+                            for(int q = 0; q < oldAlreadyPlacesCorners.length; q++) {
+                                alreadyPlacesCorners[q][0] = oldAlreadyPlacesCorners[q][0];
+                                alreadyPlacesCorners[q][1] = oldAlreadyPlacesCorners[q][1];
+                                alreadyPlacesCorners[q][2] = oldAlreadyPlacesCorners[q][2];
                             }
-                            int counter = pointsOfIinJ.size();
+                            int counter = oldAlreadyPlacesCorners.length;
                             for(int a = 0; a < edges.size(); a++) {
                                 Cord ca = edges.get(a);
-                                for(int b = a + 1; b < edges.size(); b++) {
-                                    Cord cb = edges.get(b);
-                                    Cord c0 = null;
-                                    Cord c1 = null;
-                                    if(ca.x == cb.x && ca.y != cb.y && ca.z != cb.z) {
-                                        c0 = new Cord(ca.x, ca.y, cb.z);
-                                        c1 = new Cord(ca.x, cb.y, ca.z);
-                                    } else if (ca.x != cb.x && ca.y == cb.y && ca.z != cb.z) {
-                                        c0 = new Cord(ca.x, ca.y, cb.z);
-                                        c1 = new Cord(cb.x, ca.y, ca.z);
-                                    } else if (ca.x != cb.x && ca.y != cb.y && ca.z == cb.z) {
-                                        c0 = new Cord(ca.x, cb.y, ca.z);
-                                        c1 = new Cord(cb.x, ca.y, ca.z);
-                                    }
-                                    if (c1 != null) {
-                                        Boolean c0b = true;
-                                        Boolean c1b = true;
-                                        for (int c = 0; c <= counter; c++) {
-                                            if (c0.x == alreadyPlacesCorners[c][0] &&
-                                                    c0.y == alreadyPlacesCorners[c][1] &&
-                                                    c0.z == alreadyPlacesCorners[c][2]) {
-                                                c0b = false;
-                                            } else if (c1.x == alreadyPlacesCorners[c][0] &&
-                                                    c1.y == alreadyPlacesCorners[c][1] &&
-                                                    c1.z == alreadyPlacesCorners[c][2]) {
-                                                c1b = false;
+                                for(int b = 0; b < edges.size(); b++) {
+                                    if (a != b) {
+                                        Cord cb = edges.get(b);
+                                        Cord c0 = null;
+                                        Cord c1 = null;
+                                        if (ca.x == cb.x && ca.y != cb.y && ca.z != cb.z) {
+                                            c0 = new Cord(ca.x, ca.y, cb.z);
+                                            c1 = new Cord(ca.x, cb.y, ca.z);
+                                        } else if (ca.x != cb.x && ca.y == cb.y && ca.z != cb.z) {
+                                            c0 = new Cord(ca.x, ca.y, cb.z);
+                                            c1 = new Cord(cb.x, ca.y, ca.z);
+                                        } else if (ca.x != cb.x && ca.y != cb.y && ca.z == cb.z) {
+                                            c0 = new Cord(ca.x, cb.y, ca.z);
+                                            c1 = new Cord(cb.x, ca.y, ca.z);
+                                        }
+                                        if (c1 != null) {
+                                            Boolean c0b = true;
+                                            Boolean c1b = true;
+                                            for (int c = 0; c <= counter; c++) {
+                                                if (c0.x == alreadyPlacesCorners[c][0] &&
+                                                        c0.y == alreadyPlacesCorners[c][1] &&
+                                                        c0.z == alreadyPlacesCorners[c][2]) {
+                                                    c0b = false;
+                                                } else if (c1.x == alreadyPlacesCorners[c][0] &&
+                                                        c1.y == alreadyPlacesCorners[c][1] &&
+                                                        c1.z == alreadyPlacesCorners[c][2]) {
+                                                    c1b = false;
+                                                }
                                             }
-                                        }
-                                        if (c0b) {
-                                            toAdd.add(c0);
-                                            allCornersOfI.add(c0);
-                                            alreadyPlacesCorners[counter][0] = c0.x;
-                                            alreadyPlacesCorners[counter][1] = c0.y;
-                                            alreadyPlacesCorners[counter][2] = c0.z;
-                                            counter++;
-                                        }
-                                        if (c1b) {
-                                            toAdd.add(c1);
-                                            allCornersOfI.add(c1);
-                                            alreadyPlacesCorners[counter][0] = c1.x;
-                                            alreadyPlacesCorners[counter][1] = c1.y;
-                                            alreadyPlacesCorners[counter][2] = c1.z;
-                                            counter++;
+                                            if (c0b) {
+                                                toAdd.add(c0);
+                                                allCornersOfI.add(c0);
+                                                alreadyPlacesCorners[counter][0] = c0.x;
+                                                alreadyPlacesCorners[counter][1] = c0.y;
+                                                alreadyPlacesCorners[counter][2] = c0.z;
+                                                counter++;
+                                            }
+                                            if (c1b) {
+                                                toAdd.add(c1);
+                                                allCornersOfI.add(c1);
+                                                alreadyPlacesCorners[counter][0] = c1.x;
+                                                alreadyPlacesCorners[counter][1] = c1.y;
+                                                alreadyPlacesCorners[counter][2] = c1.z;
+                                                counter++;
+                                            }
                                         }
                                     }
                                 }
                             }
+                            oldAlreadyPlacesCorners = alreadyPlacesCorners;
+                            System.out.println("AFTER");
+                            for(Cord corner : allCornersOfI) {
+                                System.out.println(corner.x + ", " + corner.y + ", " + corner.z);
+                            }
                         }
 
-                        System.out.println("AFTER");
-                        for(Cord corner : allCornersOfI) {
-                            System.out.println(corner.x + ", " + corner.y + ", " + corner.z);
-                        }
-                        innerrun = false;
+
                     }
                 }
                 if (!run) {

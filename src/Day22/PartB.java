@@ -106,6 +106,15 @@ public class PartB {
                             oldAlreadyPlacesCorners = alreadyPlacedCorners;
                         }
                     }
+                    long takeAwayVolume = 0;
+                    for(Cord t : toAdd) {
+                        for(Cord r : pointsOfIinJ) {
+                            long vol = Math.abs((t.x-r.x)*(t.y-r.y)*(t.z-r.z));
+                            takeAwayVolume = Math.max(takeAwayVolume, vol);
+                        }
+                    }
+                    volume -= takeAwayVolume; //TODO too low
+
                 }
                 if (!run) {
                     break;

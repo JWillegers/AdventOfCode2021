@@ -91,24 +91,27 @@ public class PartB {
                     //Check for edges to other point i in j
                     for (int a = 0; a < pointsOfIinJ.size(); a++) {
                         Cord pointA = pointsOfIinJ.get(a);
+                        System.out.println("DEL: " + pointA.x + ", " + pointA.y + ", " + pointA.z);
                         for (int b = a + 1; b < pointsOfIinJ.size(); b++) {
                             Cord pointB = pointsOfIinJ.get(b);
-                            if (pointA.x == pointB.x) {
+                            if (pointA.y == pointB.y && pointA.z == pointB.z) {
                                 pointA.xLine = 0;
                                 pointB.xLine = 0;
                             }
-                            if (pointA.y == pointB.y) {
+                            if (pointA.x == pointB.x && pointA.z == pointB.z) {
                                 pointA.yLine = 0;
                                 pointB.yLine = 0;
                             }
-                            if (pointA.z == pointB.z) {
+                            if (pointA.x == pointB.x && pointA.y == pointB.y) {
                                 pointA.zLine = 0;
                                 pointB.zLine = 0;
                             }
                         }
                     }
                     //Check for direction of edge to points i outside of j
+                    System.out.println("BEFORE");
                     for(Cord corner : allCornersOfI) {
+                        System.out.println(corner.x + ", " + corner.y + ", " + corner.z);
                         if(!pointsOfIinJ.contains(corner)) {
                             for(Cord c : pointsOfIinJ) {
                                 if(corner.x == c.x && corner.y == c.y && c.zLine != 0) {
@@ -144,6 +147,7 @@ public class PartB {
                     }
                     allCornersOfI.addAll(toAdd);
 
+
                     boolean innerrun = true;
                     while(innerrun) {
                         //check if every corner has some edge in x,y,z
@@ -152,21 +156,25 @@ public class PartB {
                         for(int a = 0; a < allCornersOfI.size(); a++) {
                             Cord ca = allCornersOfI.get(a);
                             int counter = 0;
-                            for(int b = a + 1; b < allCornersOfI.size(); b++) {
-                                Cord cb = allCornersOfI.get(b);
-                                if (ca.x == cb.x || ca.y == cb.y || ca.z == cb.z) {
-                                    counter++;
+                            for(int b = 0; b < allCornersOfI.size(); b++) {
+                                if (a != b) {
+                                    Cord cb = allCornersOfI.get(b);
+                                    if ((ca.x == cb.x && ca.y == cb.y) || (ca.y == cb.y && ca.z == cb.z) || (ca.z == cb.z && ca.x == cb.x)) {
+                                        counter++;
+                                    }
                                 }
                             }
+                            System.out.println(counter + ": " + ca.x + ", " + ca.y + ", " + ca.z);
                             if (counter < 3) {
                                 edges.add(ca);
                                 innerrun = true;
                             } else if (counter > 3) {
-                                //System.out.println("HELP");
+                                System.out.println("HELP");
                             }
                         }
                         if (innerrun) {
-                            int[][] alreadyPlacesCorners = new int[edges.size()][3];
+                            System.out.println(edges.size());
+                            int[][] alreadyPlacesCorners = new int[2*edges.size()][3];
                             int counter = 0;
                             for(int a = 0; a < edges.size(); a++) {
                                 Cord ca = edges.get(a);
@@ -187,7 +195,7 @@ public class PartB {
                                     if (c1 != null) {
                                         Boolean c0b = true;
                                         Boolean c1b = true;
-                                        for (int c = 0; c < edges.size(); c++) {
+                                        for (int c = 0; c <= counter; c++) {
                                             if (c0.x == alreadyPlacesCorners[c][0] &&
                                                     c0.y == alreadyPlacesCorners[c][1] &&
                                                     c0.z == alreadyPlacesCorners[c][2]) {
@@ -217,6 +225,11 @@ public class PartB {
                                     }
                                 }
                             }
+                        }
+
+                        System.out.println("AFTER");
+                        for(Cord corner : allCornersOfI) {
+                            System.out.println(corner.x + ", " + corner.y + ", " + corner.z);
                         }
                         innerrun = false;
                     }

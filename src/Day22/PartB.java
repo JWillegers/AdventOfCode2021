@@ -9,6 +9,7 @@ import java.util.List;
 public class PartB {
     private final int nOfLines = 420;
     private List<RebootStep> input;
+    private boolean innerrun;
 
     public static void main(String[] args) {
         PartB part = new PartB();
@@ -57,6 +58,7 @@ public class PartB {
                 input.add(r);
             }
             reader.close();
+            innerrun = false;
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -72,176 +74,36 @@ public class PartB {
             List<Cord> allCornersOfI = input.get(i).adjustedCorners;
             boolean run = true;
             for (int j = i + 1; j < nOfLines; j++) {
-                //check how many corners of i lie in j
-                List<Cord> pointsOfIinJ = new ArrayList<>();
                 Cord cj_min = input.get(j).originalCorners.get(0);
                 Cord cj_max = input.get(j).originalCorners.get(7);
-                for(Cord ci : allCornersOfI) {
-                    //min_x <= ci.x <= max_x and min_y <= ci.y <= max_y and min_z <= ci.z <= max_z
-                    if (cj_min.x < ci.x && ci.x < cj_max.x
-                        && cj_min.y < ci.y && ci.y < cj_max.y
-                        && cj_min.z < ci.z && ci.z < cj_max.z) {
-                        pointsOfIinJ.add(ci);
-                    }
-                }
+                List<Cord> pointsOfIinJ = getPointsIinJ(allCornersOfI, cj_min, cj_max);
                 if (pointsOfIinJ.size() == allCornersOfI.size()) {
                     run = false;
                 } else if (!pointsOfIinJ.isEmpty()) {
-                    //Check for edges to other point i in j
-                    for (int a = 0; a < pointsOfIinJ.size(); a++) {
-                        Cord pointA = pointsOfIinJ.get(a);
-                        for (int b = a + 1; b < pointsOfIinJ.size(); b++) {
-                            Cord pointB = pointsOfIinJ.get(b);
-                            if (pointA.y == pointB.y && pointA.z == pointB.z) {
-                                pointA.xLine = 0;
-                                pointB.xLine = 0;
-                            }
-                            if (pointA.x == pointB.x && pointA.z == pointB.z) {
-                                pointA.yLine = 0;
-                                pointB.yLine = 0;
-                            }
-                            if (pointA.x == pointB.x && pointA.y == pointB.y) {
-                                pointA.zLine = 0;
-                                pointB.zLine = 0;
-                            }
-                        }
-                    }
-                    //Check for direction of edge to points i outside of j
-                    for(Cord corner : allCornersOfI) {
-                        if(!pointsOfIinJ.contains(corner)) {
-                            for(Cord c : pointsOfIinJ) {
-                                if(corner.x == c.x && corner.y == c.y && c.zLine != 0) {
-                                    c.zLine = corner.z < c.z ? -1 : 1;
-                                } else if(c.xLine != 0 && corner.y == c.y && corner.z == c.z) {
-                                    c.xLine = corner.x < c.x ? -1 : 1;
-                                } else if(corner.x == c.x && c.yLine != 0 && corner.z == c.z) {
-                                    c.yLine = corner.y < c.y ? -1 : 1;
-                                }
-                            }
-                        }
-                    }
-
-                    //Decided initial new corners that have to be found, and remove all innerpoints
-                    List<Cord> toAdd = new ArrayList<>();
-                    for(Cord c : pointsOfIinJ) {
-                        allCornersOfI.remove(c);
-                        if (c.xLine == -1) {
-                            toAdd.add(new Cord(cj_min.x, c.y, c.z));
-                        } else if (c.xLine == 1) {
-                           toAdd.add(new Cord(cj_max.x, c.y, c.z));
-                        }
-                        if (c.yLine == -1) {
-                            toAdd.add(new Cord(c.x, cj_min.y, c.z));
-                        } else if (c.yLine == 1) {
-                            toAdd.add(new Cord(c.x, cj_max.y, c.z));
-                        }
-                        if (c.zLine == -1) {
-                            toAdd.add(new Cord(c.x, c.y, cj_min.z));
-                        } else if (c.zLine == 1) {
-                            toAdd.add(new Cord(c.x, c.y, cj_max.z));
-                        }
-                    }
-                    allCornersOfI.addAll(toAdd);
-
-
-                    boolean innerrun = true;
-                    int crazy = 0;
-                    int[][] oldAlreadyPlacesCorners = new int[pointsOfIinJ.size()+toAdd.size()][3];
-                    for (int a = 0; a < pointsOfIinJ.size(); a++) { //preventing deleted corners from being added again
-                        Cord c = pointsOfIinJ.get(a);
-                        oldAlreadyPlacesCorners[a][0] = c.x;
-                        oldAlreadyPlacesCorners[a][1] = c.y;
-                        oldAlreadyPlacesCorners[a][2] = c.z;
-                    }
-                    for (int a = pointsOfIinJ.size(); a < toAdd.size() + pointsOfIinJ.size(); a++) { //preventing already added corners from being added again
-                        Cord c = toAdd.get(a - pointsOfIinJ.size());
-                        oldAlreadyPlacesCorners[a][0] = c.x;
-                        oldAlreadyPlacesCorners[a][1] = c.y;
-                        oldAlreadyPlacesCorners[a][2] = c.z;
-                    }
-                    while(innerrun && crazy < 5) {
-                        crazy++;
-                        //check if every corner has some edge in x,y,z
+                    checkEdgesForPointsIinJ(pointsOfIinJ);
+                    checkEdgesForPointsIoutsideJ(pointsOfIinJ, allCornersOfI);
+                    List<Cord> toAdd = addNewCornersAndRemoveOldOnes(pointsOfIinJ, allCornersOfI, cj_min, cj_max);
+                    int[][] oldAlreadyPlacesCorners = initOldAlreadyPlacedCorers(pointsOfIinJ, toAdd);
+                    innerrun = true;
+                    while(innerrun) {
+                        List<Cord> edges = findCornersWithLessThanThreeEdges(allCornersOfI);
                         innerrun = false;
-                        List<Cord> edges = new ArrayList<>();
-                        for(int a = 0; a < allCornersOfI.size(); a++) {
-                            Cord ca = allCornersOfI.get(a);
-                            int counter = 0;
-                            for(int b = 0; b < allCornersOfI.size(); b++) {
-                                if (a != b) {
-                                    Cord cb = allCornersOfI.get(b);
-                                    if ((ca.x == cb.x && ca.y == cb.y) || (ca.y == cb.y && ca.z == cb.z) || (ca.z == cb.z && ca.x == cb.x)) {
-                                        counter++;
-                                    }
-                                }
-                            }
-                            if (counter < 3) {
-                                edges.add(ca);
-                                innerrun = true;
-                            }
-                        }
                         if (innerrun) {
-                            int[][] alreadyPlacesCorners = new int[2*edges.size()+oldAlreadyPlacesCorners.length][3];
-                            for(int q = 0; q < oldAlreadyPlacesCorners.length; q++) {
-                                alreadyPlacesCorners[q][0] = oldAlreadyPlacesCorners[q][0];
-                                alreadyPlacesCorners[q][1] = oldAlreadyPlacesCorners[q][1];
-                                alreadyPlacesCorners[q][2] = oldAlreadyPlacesCorners[q][2];
-                            }
+                            int[][] alreadyPlacedCorners = newAlreadyPlacedCorners(edges.size(), oldAlreadyPlacesCorners);
                             int counter = oldAlreadyPlacesCorners.length;
                             for(int a = 0; a < edges.size(); a++) {
                                 Cord ca = edges.get(a);
                                 for(int b = 0; b < edges.size(); b++) {
                                     if (a != b) {
-                                        Cord cb = edges.get(b);
-                                        Cord c0 = null;
-                                        Cord c1 = null;
-                                        if (ca.x == cb.x && ca.y != cb.y && ca.z != cb.z) {
-                                            c0 = new Cord(ca.x, ca.y, cb.z);
-                                            c1 = new Cord(ca.x, cb.y, ca.z);
-                                        } else if (ca.x != cb.x && ca.y == cb.y && ca.z != cb.z) {
-                                            c0 = new Cord(ca.x, ca.y, cb.z);
-                                            c1 = new Cord(cb.x, ca.y, ca.z);
-                                        } else if (ca.x != cb.x && ca.y != cb.y && ca.z == cb.z) {
-                                            c0 = new Cord(ca.x, cb.y, ca.z);
-                                            c1 = new Cord(cb.x, ca.y, ca.z);
-                                        }
-                                        if (c1 != null) {
-                                            Boolean c0b = true;
-                                            Boolean c1b = true;
-                                            for (int c = 0; c <= counter; c++) {
-                                                if (c0.x == alreadyPlacesCorners[c][0] &&
-                                                        c0.y == alreadyPlacesCorners[c][1] &&
-                                                        c0.z == alreadyPlacesCorners[c][2]) {
-                                                    c0b = false;
-                                                } else if (c1.x == alreadyPlacesCorners[c][0] &&
-                                                        c1.y == alreadyPlacesCorners[c][1] &&
-                                                        c1.z == alreadyPlacesCorners[c][2]) {
-                                                    c1b = false;
-                                                }
-                                            }
-                                            if (c0b && ((c0.x < cj_min.x && c0.y < cj_min.y && c0.z < cj_min.z) ||
-                                                    (c0.x > cj_max.x && c0.y > cj_max.y && c0.z > cj_max.z))) {
-                                                toAdd.add(c0);
-                                                allCornersOfI.add(c0);
-                                                alreadyPlacesCorners[counter][0] = c0.x;
-                                                alreadyPlacesCorners[counter][1] = c0.y;
-                                                alreadyPlacesCorners[counter][2] = c0.z;
-                                                counter++;
-                                            }
-                                            if (c1b && ((c1.x < cj_min.x && c1.y < cj_min.y && c1.z < cj_min.z) ||
-                                                    (c1.x > cj_max.x && c1.y > cj_max.y && c1.z > cj_max.z))) {
-                                                toAdd.add(c1);
-                                                allCornersOfI.add(c1);
-                                                alreadyPlacesCorners[counter][0] = c1.x;
-                                                alreadyPlacesCorners[counter][1] = c1.y;
-                                                alreadyPlacesCorners[counter][2] = c1.z;
-                                                counter++;
-                                            }
+                                        TwoCords t = defineC0andC1(edges, b, ca);
+                                        if (t.c1 != null) {
+                                            defineBooleans(t, counter, alreadyPlacedCorners);
+                                            checkIfCornerCanBeAdded(t, counter, toAdd, allCornersOfI, alreadyPlacedCorners, cj_min, cj_max);
                                         }
                                     }
                                 }
                             }
-                            oldAlreadyPlacesCorners = alreadyPlacesCorners;
+                            oldAlreadyPlacesCorners = alreadyPlacedCorners;
                         }
                     }
                 }
@@ -254,5 +116,199 @@ public class PartB {
             }
         }
         System.out.println(count);
+    }
+
+    public List<Cord> getPointsIinJ(List<Cord> allCornersOfI, Cord cj_min, Cord cj_max) {
+        List<Cord> pointsOfIinJ = new ArrayList<>();
+        for(Cord ci : allCornersOfI) {
+            //min_x <= ci.x <= max_x and min_y <= ci.y <= max_y and min_z <= ci.z <= max_z
+            if (cj_min.x < ci.x && ci.x < cj_max.x
+                    && cj_min.y < ci.y && ci.y < cj_max.y
+                    && cj_min.z < ci.z && ci.z < cj_max.z) {
+                pointsOfIinJ.add(ci);
+            }
+        }
+        return pointsOfIinJ;
+    }
+
+    public void checkEdgesForPointsIinJ(List<Cord> pointsOfIinJ) {
+        //Check for edges to other point i in j
+        for (int a = 0; a < pointsOfIinJ.size(); a++) {
+            Cord pointA = pointsOfIinJ.get(a);
+            for (int b = a + 1; b < pointsOfIinJ.size(); b++) {
+                Cord pointB = pointsOfIinJ.get(b);
+                if (pointA.y == pointB.y && pointA.z == pointB.z) {
+                    pointA.xLine = 0;
+                    pointB.xLine = 0;
+                }
+                if (pointA.x == pointB.x && pointA.z == pointB.z) {
+                    pointA.yLine = 0;
+                    pointB.yLine = 0;
+                }
+                if (pointA.x == pointB.x && pointA.y == pointB.y) {
+                    pointA.zLine = 0;
+                    pointB.zLine = 0;
+                }
+            }
+        }
+    }
+
+    public void checkEdgesForPointsIoutsideJ(List<Cord> pointsOfIinJ, List<Cord> allCornersOfI) {
+        for (Cord corner : allCornersOfI) {
+            if (!pointsOfIinJ.contains(corner)) {
+                for (Cord c : pointsOfIinJ) {
+                    if (corner.x == c.x && corner.y == c.y && c.zLine != 0) {
+                        c.zLine = corner.z < c.z ? -1 : 1;
+                    } else if (c.xLine != 0 && corner.y == c.y && corner.z == c.z) {
+                        c.xLine = corner.x < c.x ? -1 : 1;
+                    } else if (corner.x == c.x && c.yLine != 0 && corner.z == c.z) {
+                        c.yLine = corner.y < c.y ? -1 : 1;
+                    }
+                }
+            }
+        }
+    }
+
+    public List<Cord> addNewCornersAndRemoveOldOnes(List<Cord> pointsOfIinJ, List<Cord> allCornersOfI, Cord cj_min, Cord cj_max) {
+        List<Cord> toAdd = new ArrayList<>();
+        for(Cord c : pointsOfIinJ) {
+            allCornersOfI.remove(c);
+            if (c.xLine == -1) {
+                toAdd.add(new Cord(cj_min.x, c.y, c.z));
+            } else if (c.xLine == 1) {
+                toAdd.add(new Cord(cj_max.x, c.y, c.z));
+            }
+            if (c.yLine == -1) {
+                toAdd.add(new Cord(c.x, cj_min.y, c.z));
+            } else if (c.yLine == 1) {
+                toAdd.add(new Cord(c.x, cj_max.y, c.z));
+            }
+            if (c.zLine == -1) {
+                toAdd.add(new Cord(c.x, c.y, cj_min.z));
+            } else if (c.zLine == 1) {
+                toAdd.add(new Cord(c.x, c.y, cj_max.z));
+            }
+        }
+        allCornersOfI.addAll(toAdd);
+        return toAdd;
+    }
+
+    public int[][] initOldAlreadyPlacedCorers(List<Cord> pointsOfIinJ, List<Cord> toAdd) {
+        int[][] oldAlreadyPlacedCorners = new int[pointsOfIinJ.size()+toAdd.size()][3];
+        for (int a = 0; a < pointsOfIinJ.size(); a++) { //preventing deleted corners from being added again
+            Cord c = pointsOfIinJ.get(a);
+            oldAlreadyPlacedCorners[a][0] = c.x;
+            oldAlreadyPlacedCorners[a][1] = c.y;
+            oldAlreadyPlacedCorners[a][2] = c.z;
+        }
+        for (int a = pointsOfIinJ.size(); a < toAdd.size() + pointsOfIinJ.size(); a++) { //preventing already added corners from being added again
+            Cord c = toAdd.get(a - pointsOfIinJ.size());
+            oldAlreadyPlacedCorners[a][0] = c.x;
+            oldAlreadyPlacedCorners[a][1] = c.y;
+            oldAlreadyPlacedCorners[a][2] = c.z;
+        }
+        return oldAlreadyPlacedCorners;
+    }
+
+    public List<Cord> findCornersWithLessThanThreeEdges(List<Cord> allCornersOfI) {
+        List<Cord> edges = new ArrayList<>();
+        for(int a = 0; a < allCornersOfI.size(); a++) {
+            Cord ca = allCornersOfI.get(a);
+            int counter = 0;
+            for(int b = 0; b < allCornersOfI.size(); b++) {
+                if (a != b) {
+                    Cord cb = allCornersOfI.get(b);
+                    if ((ca.x == cb.x && ca.y == cb.y) || (ca.y == cb.y && ca.z == cb.z) || (ca.z == cb.z && ca.x == cb.x)) {
+                        counter++;
+                    }
+                }
+            }
+            if (counter < 3) {
+                edges.add(ca);
+                innerrun = true;
+            }
+        }
+        return edges;
+    }
+
+    public int[][] newAlreadyPlacedCorners(int edgesSize, int[][] oldAlreadyPlacesCorners) {
+        int[][] alreadyPlacedCorners = new int[2*edgesSize+oldAlreadyPlacesCorners.length][3];
+        for(int q = 0; q < oldAlreadyPlacesCorners.length; q++) {
+            alreadyPlacedCorners[q][0] = oldAlreadyPlacesCorners[q][0];
+            alreadyPlacedCorners[q][1] = oldAlreadyPlacesCorners[q][1];
+            alreadyPlacedCorners[q][2] = oldAlreadyPlacesCorners[q][2];
+        }
+        return alreadyPlacedCorners;
+    }
+
+    public TwoCords defineC0andC1(List<Cord> edges, int b, Cord ca) {
+        Cord cb = edges.get(b);
+        TwoCords t = new TwoCords();
+        if (ca.x == cb.x && ca.y != cb.y && ca.z != cb.z) {
+            t.c0 = new Cord(ca.x, ca.y, cb.z);
+            t.c1 = new Cord(ca.x, cb.y, ca.z);
+        } else if (ca.x != cb.x && ca.y == cb.y && ca.z != cb.z) {
+            t.c0 = new Cord(ca.x, ca.y, cb.z);
+            t.c1 = new Cord(cb.x, ca.y, ca.z);
+        } else if (ca.x != cb.x && ca.y != cb.y && ca.z == cb.z) {
+            t.c0 = new Cord(ca.x, cb.y, ca.z);
+            t.c1 = new Cord(cb.x, ca.y, ca.z);
+        }
+        return t;
+    }
+
+    public void defineBooleans(TwoCords t, int counter, int[][] alreadyPlacedCorners) {
+        for (int c = 0; c <= counter; c++) {
+            if (t.c0.x == alreadyPlacedCorners[c][0] &&
+                    t.c0.y == alreadyPlacedCorners[c][1] &&
+                    t.c0.z == alreadyPlacedCorners[c][2]) {
+                t.c0b = false;
+            } else if (t.c1.x == alreadyPlacedCorners[c][0] &&
+                    t.c1.y == alreadyPlacedCorners[c][1] &&
+                    t.c1.z == alreadyPlacedCorners[c][2]) {
+                t.c1b = false;
+            }
+        }
+    }
+
+    public void checkIfCornerCanBeAdded(TwoCords t, int counter, List<Cord> toAdd, List<Cord> allCornersOfI, int[][] alreadyPlacedCorners, Cord cj_min, Cord cj_max) {
+        for (int i = 0; i < 2; i++) {
+            Cord c = t.c0;
+            Boolean b = t.c0b;
+            if (i == 1) {
+                c = t.c1;
+                b = t.c1b;
+            }
+            if (b && ((c.x <= cj_min.x && c.y <= cj_min.y) ||
+                    (c.z <= cj_min.z && c.y <= cj_min.y) ||
+                    (c.x <= cj_min.x && c.z <= cj_min.z) ||
+                    (c.x >= cj_max.x && c.y >= cj_max.y) ||
+                    (c.z >= cj_max.z && c.y >= cj_max.y) ||
+                    (c.x >= cj_max.x && c.z >= cj_max.z))) {
+                toAdd.add(c);
+                allCornersOfI.add(c);
+                alreadyPlacedCorners[counter][0] = c.x;
+                alreadyPlacedCorners[counter][1] = c.y;
+                alreadyPlacedCorners[counter][2] = c.z;
+                counter++;
+            }
+        }
+
+
+    }
+
+    class TwoCords {
+        Cord c0;
+        Cord c1;
+        boolean c0b;
+        boolean c1b;
+
+        public TwoCords() {
+            c0 = null;
+            c1 = null;
+            c0b = true;
+            c1b = true;
+        }
+
     }
 }

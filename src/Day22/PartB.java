@@ -65,13 +65,12 @@ public class PartB {
 
     public void solution() {
         long count = 0;
-        for (int i = nOfLines - 2; i >= 20; i--) {
+        for (int i = nOfLines - 2; i >= 0; i--) {
             Cord i_min = input.get(i).originalCorners.get(0);
             Cord i_max = input.get(i).originalCorners.get(7);
             long volume = Math.abs((i_max.x-i_min.x)*(i_max.y-i_min.y)*(i_max.z-i_min.z));
             List<Cord> allCornersOfI = input.get(i).adjustedCorners;
             boolean run = true;
-            System.out.println("NEW LINE");
             for (int j = i + 1; j < nOfLines; j++) {
                 //check how many corners of i lie in j
                 List<Cord> pointsOfIinJ = new ArrayList<>();
@@ -88,12 +87,9 @@ public class PartB {
                 if (pointsOfIinJ.size() == allCornersOfI.size()) {
                     run = false;
                 } else if (!pointsOfIinJ.isEmpty()) {
-                    System.out.println("cj_min: " + cj_min.x + ", " + cj_min.y + ", " + cj_min.z);
-                    System.out.println("cj_max: " + cj_max.x + ", " + cj_max.y + ", " + cj_max.z);
                     //Check for edges to other point i in j
                     for (int a = 0; a < pointsOfIinJ.size(); a++) {
                         Cord pointA = pointsOfIinJ.get(a);
-                        System.out.println("DEL: " + pointA.x + ", " + pointA.y + ", " + pointA.z);
                         for (int b = a + 1; b < pointsOfIinJ.size(); b++) {
                             Cord pointB = pointsOfIinJ.get(b);
                             if (pointA.y == pointB.y && pointA.z == pointB.z) {
@@ -111,9 +107,7 @@ public class PartB {
                         }
                     }
                     //Check for direction of edge to points i outside of j
-                    System.out.println("BEFORE");
                     for(Cord corner : allCornersOfI) {
-                        System.out.println(corner.x + ", " + corner.y + ", " + corner.z);
                         if(!pointsOfIinJ.contains(corner)) {
                             for(Cord c : pointsOfIinJ) {
                                 if(corner.x == c.x && corner.y == c.y && c.zLine != 0) {
@@ -149,10 +143,6 @@ public class PartB {
                     }
                     allCornersOfI.addAll(toAdd);
 
-                    for (Cord c : toAdd) {
-                        System.out.println("ADD: " + c.x + ", " + c.y + ", " + c.z);
-                    }
-
 
                     boolean innerrun = true;
                     int crazy = 0;
@@ -185,12 +175,9 @@ public class PartB {
                                     }
                                 }
                             }
-                            System.out.println(counter + ": " + ca.x + ", " + ca.y + ", " + ca.z);
                             if (counter < 3) {
                                 edges.add(ca);
                                 innerrun = true;
-                            } else if (counter > 3) {
-                                System.out.println("HELP");
                             }
                         }
                         if (innerrun) {
@@ -232,7 +219,8 @@ public class PartB {
                                                     c1b = false;
                                                 }
                                             }
-                                            if (c0b) {
+                                            if (c0b && ((c0.x < cj_min.x && c0.y < cj_min.y && c0.z < cj_min.z) ||
+                                                    (c0.x > cj_max.x && c0.y > cj_max.y && c0.z > cj_max.z))) {
                                                 toAdd.add(c0);
                                                 allCornersOfI.add(c0);
                                                 alreadyPlacesCorners[counter][0] = c0.x;
@@ -240,7 +228,8 @@ public class PartB {
                                                 alreadyPlacesCorners[counter][2] = c0.z;
                                                 counter++;
                                             }
-                                            if (c1b) {
+                                            if (c1b && ((c1.x < cj_min.x && c1.y < cj_min.y && c1.z < cj_min.z) ||
+                                                    (c1.x > cj_max.x && c1.y > cj_max.y && c1.z > cj_max.z))) {
                                                 toAdd.add(c1);
                                                 allCornersOfI.add(c1);
                                                 alreadyPlacesCorners[counter][0] = c1.x;
@@ -253,13 +242,7 @@ public class PartB {
                                 }
                             }
                             oldAlreadyPlacesCorners = alreadyPlacesCorners;
-                            System.out.println("AFTER");
-                            for(Cord corner : allCornersOfI) {
-                                System.out.println(corner.x + ", " + corner.y + ", " + corner.z);
-                            }
                         }
-
-
                     }
                 }
                 if (!run) {

@@ -68,6 +68,7 @@ public class PartB {
     public void solution() {
         long count = 0;
         for (int i = nOfLines - 2; i >= 0; i--) {
+            System.out.println("NEW RUN");
             Cord i_min = input.get(i).originalCorners.get(0);
             Cord i_max = input.get(i).originalCorners.get(7);
             long volume = Math.abs((i_max.x-i_min.x)*(i_max.y-i_min.y)*(i_max.z-i_min.z));
@@ -85,9 +86,11 @@ public class PartB {
                     List<Cord> toAdd = addNewCornersAndRemoveOldOnes(pointsOfIinJ, allCornersOfI, cj_min, cj_max);
                     int[][] oldAlreadyPlacesCorners = initOldAlreadyPlacedCorers(pointsOfIinJ, toAdd);
                     innerrun = true;
-                    while(innerrun) {
-                        List<Cord> edges = findCornersWithLessThanThreeEdges(allCornersOfI);
+                    int craze = 0;
+                    while(innerrun && craze < 5) {
                         innerrun = false;
+                        craze++;
+                        List<Cord> edges = findCornersWithLessThanThreeEdges(allCornersOfI);
                         if (innerrun) {
                             int[][] alreadyPlacedCorners = newAlreadyPlacedCorners(edges.size(), oldAlreadyPlacesCorners);
                             int counter = oldAlreadyPlacesCorners.length;
@@ -106,14 +109,10 @@ public class PartB {
                             oldAlreadyPlacesCorners = alreadyPlacedCorners;
                         }
                     }
-                    long takeAwayVolume = 0;
-                    for(Cord t : toAdd) {
-                        for(Cord r : pointsOfIinJ) {
-                            long vol = Math.abs((t.x-r.x)*(t.y-r.y)*(t.z-r.z));
-                            takeAwayVolume = Math.max(takeAwayVolume, vol);
-                        }
+                    if (craze == 5) {
+                        System.exit(1);
                     }
-                    volume -= takeAwayVolume; //TODO too low
+                    volume -= calculateVolume(toAdd, pointsOfIinJ);
 
                 }
                 if (!run) {
@@ -134,8 +133,13 @@ public class PartB {
             if (cj_min.x < ci.x && ci.x < cj_max.x
                     && cj_min.y < ci.y && ci.y < cj_max.y
                     && cj_min.z < ci.z && ci.z < cj_max.z) {
+                System.out.println("REMOVE: " + ci.x + ", " + ci.y + ", " + ci.z);
                 pointsOfIinJ.add(ci);
             }
+        }
+        if (!pointsOfIinJ.isEmpty()) {
+            System.out.println("cj_min: " + cj_min.x + ", " + cj_min.y + ", " + cj_min.z);
+            System.out.println("cj_max: " + cj_max.x + ", " + cj_max.y + ", " + cj_max.z);
         }
         return pointsOfIinJ;
     }
@@ -220,6 +224,7 @@ public class PartB {
     }
 
     public List<Cord> findCornersWithLessThanThreeEdges(List<Cord> allCornersOfI) {
+        System.out.println("===================");
         List<Cord> edges = new ArrayList<>();
         for(int a = 0; a < allCornersOfI.size(); a++) {
             Cord ca = allCornersOfI.get(a);
@@ -232,6 +237,7 @@ public class PartB {
                     }
                 }
             }
+            System.out.println(counter + ": " + ca.x + ", " + ca.y + ", " + ca.z);
             if (counter < 3) {
                 edges.add(ca);
                 innerrun = true;
@@ -272,7 +278,8 @@ public class PartB {
                     t.c0.y == alreadyPlacedCorners[c][1] &&
                     t.c0.z == alreadyPlacedCorners[c][2]) {
                 t.c0b = false;
-            } else if (t.c1.x == alreadyPlacedCorners[c][0] &&
+            }
+            if (t.c1.x == alreadyPlacedCorners[c][0] &&
                     t.c1.y == alreadyPlacedCorners[c][1] &&
                     t.c1.z == alreadyPlacedCorners[c][2]) {
                 t.c1b = false;
@@ -282,18 +289,19 @@ public class PartB {
 
     public void checkIfCornerCanBeAdded(TwoCords t, int counter, List<Cord> toAdd, List<Cord> allCornersOfI, int[][] alreadyPlacedCorners, Cord cj_min, Cord cj_max) {
         for (int i = 0; i < 2; i++) {
-            Cord c = t.c0;
-            Boolean b = t.c0b;
-            if (i == 1) {
-                c = t.c1;
-                b = t.c1b;
-            }
+            Cord c = i == 0 ? t.c0 : t.c1;
+            Boolean b = i == 0 ? t.c0b : t.c1b;
             if (b && ((c.x <= cj_min.x && c.y <= cj_min.y) ||
                     (c.z <= cj_min.z && c.y <= cj_min.y) ||
                     (c.x <= cj_min.x && c.z <= cj_min.z) ||
                     (c.x >= cj_max.x && c.y >= cj_max.y) ||
                     (c.z >= cj_max.z && c.y >= cj_max.y) ||
-                    (c.x >= cj_max.x && c.z >= cj_max.z))) {
+                    (c.x >= cj_max.x && c.z >= cj_max.z) ||
+                    ((c.x == cj_min.x || c.x == cj_max.x) &&
+                    ((c.y == cj_min.y || c.y == cj_max.y) ||
+                    (c.z == cj_min.z || c.z == cj_max.z))) ||
+                    ((c.y == cj_min.y || c.y == cj_max.y) &&
+                    (c.z == cj_min.z || c.z == cj_max.z)))) {
                 toAdd.add(c);
                 allCornersOfI.add(c);
                 alreadyPlacedCorners[counter][0] = c.x;
@@ -302,9 +310,46 @@ public class PartB {
                 counter++;
             }
         }
-
-
     }
+
+    public long calculateVolume(List<Cord> added, List<Cord> removed) {
+        Long vol = (long) 0;
+        if (removed.size() <= 2) {
+            Cord r = removed.get(0);
+            for (Cord a : added) {
+                vol = Math.max(vol, Math.abs((r.x-a.x)*(r.y-a.y)*(r.z-a.z)));
+            }
+        } else {
+            boolean x = true;
+            boolean y = true;
+            boolean z = true;
+            for(int i = 0; i < removed.size(); i++) {
+                Cord one = removed.get(i);
+                for(int j = i + 1; j < removed.size(); j++) {
+                    Cord two = removed.get(j);
+                    if (one.x != two.x) {
+                        x = false;
+                    }
+                    if (one.y != two.y) {
+                        y = false;
+                    }
+                    if (one.z != two.z) {
+                        z = false;
+                    }
+
+                }
+            }
+            assert(x || y || z);
+            for(int i = 0; i < removed.size(); i++) {
+                Cord one = removed.get(i);
+                for (int j = i + 1; j < removed.size(); j++) {
+                    Cord two = removed.get(j);
+                }
+            }
+        }
+        return vol;
+    }
+
 
     class TwoCords {
         Cord c0;

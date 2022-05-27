@@ -8,80 +8,55 @@ import java.util.List;
 
 
 public class Solution {
-    private int nOfLines = 252;
-    private int[] array = new int[nOfLines];
-
-    public static void main(String[] args) {
-        Solution part = new Solution();
-        part.setup();
-    }
-
-    public void setup() {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader("src/Day24/input.txt"));
-            for (int i = 0; i < nOfLines; i++) {
-                String[] line = reader.readLine().split(" ");
-                if(line.length > 2) {
-                    try {
-                        array[i] = Integer.parseInt(line[2]);
-                    } catch (NumberFormatException e) {
-                        continue;
-                    }
-                }
-            }
-            reader.close();
-            solution();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-
     /*
-    This part (18 lines) is repeated 14 times:
-    inp w
-    mul x 0
-    add x z
-    mod x 26
-    div z {a}
-    add x {b}
-    eql x w
-    eql x 0
-    mul y 0
-    add y 25
-    mul y x
-    add y 1
-    mul z y
-    mul y 0
-    add y w
-    add y {c}
-    mul y x
-    add z y
+    Analytical solution using: https://github.com/dphilipson/advent-of-code-2021/blob/master/src/days/day24.rs
 
-    w is a digit in the input (the monad number we are testing)
+    Values {CHECK},{OFFSET}
+    11, 1
+    11, 11
+    14, 1
+    11, 11,
+    -8, 2
+    -5, 9
+    11, 7
+    -13, 11
+    12, 6
+    -1, 15
+    14, 7
+    -5, 1
+    -4, 8
+    -8, 6
 
-    From where we can find:
-    x = (z%26+{b}) == w ? 0 : 1
-    y = 25*x+1
-    z = z/{a}
-    z = z * y
-    y = (w + {c}) * x
-    z = z + y
+    PUSH/POP
+    PUSH w[0] + 1
+    PUSH w[1] + 11
+    PUSH w[2] + 1
+    PUSH w[3] + 11
+    POP  w[4] == poppedValue - 8
+    POP  w[5] == poppedValue - 5
+    PUSH w[6] + 7
+    POP  w[7] == poppedValue - 13
+    PUSH w[8] + 6
+    POP  w[9] == poppedValue - 1
+    PUSH w[10] + 7
+    POP  w[11] == poppedValue - 5
+    POP  w[12] == poppedValue - 4
+    POP  w[13] == poppedValue - 8
 
-    becomes:
-    z[now] = z[previous]/{a} * (25*((z[previous]%26+{b}) != w)+1) + (w + {c}) * (z[previous]%26+{b}) != w)
+    Which will become these equations:
+        w[4] == w[3] + 3
+        w[5] == w[2] - 4
+        w[7] == w[6] - 6
+        w[9] == w[8] + 5
+        w[11] == w[10] + 2
+        w[12] == w[1] + 7
+        w[13] == w[0] - 7
 
-    Valid number if 0 is not in the number and when after running z=0
 
-    {a} is located at line%18=4
-    {b} is located at line%18=5
-    {c} is located at line%18=15
+    Max accepted number (0 is left most number)
+    92969593497992
+
+    Min accepted number
+    81514171161381
      */
-    public void solution() {
-       for(int i = 0; i < nOfLines; i+= 18) {
-           System.out.println(array[i+4] + ", " + array[i+5] + ", " + array[i+15] );
-       }
-    }
 }

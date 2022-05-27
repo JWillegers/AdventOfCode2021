@@ -90,7 +90,7 @@ public class PartB {
                     while(innerrun && craze < 5) {
                         innerrun = false;
                         craze++;
-                        List<Cord> edges = findCornersWithLessThanThreeEdges(allCornersOfI);
+                        List<Cord> edges = findCornersWithLessThanThreeEdges(allCornersOfI, cj_min, cj_max);
                         if (innerrun) {
                             int[][] alreadyPlacedCorners = newAlreadyPlacedCorners(edges.size(), oldAlreadyPlacesCorners);
                             int counter = oldAlreadyPlacesCorners.length;
@@ -101,7 +101,7 @@ public class PartB {
                                         TwoCords t = defineC0andC1(edges, b, ca);
                                         if (t.c1 != null) {
                                             defineBooleans(t, counter, alreadyPlacedCorners);
-                                            checkIfCornerCanBeAdded(t, counter, toAdd, allCornersOfI, alreadyPlacedCorners, cj_min, cj_max);
+                                            counter = checkIfCornerCanBeAdded(t, counter, toAdd, allCornersOfI, alreadyPlacedCorners, cj_min, cj_max);
                                         }
                                     }
                                 }
@@ -223,7 +223,7 @@ public class PartB {
         return oldAlreadyPlacedCorners;
     }
 
-    public List<Cord> findCornersWithLessThanThreeEdges(List<Cord> allCornersOfI) {
+    public List<Cord> findCornersWithLessThanThreeEdges(List<Cord> allCornersOfI, Cord cj_min, Cord cj_max) {
         System.out.println("===================");
         List<Cord> edges = new ArrayList<>();
         for(int a = 0; a < allCornersOfI.size(); a++) {
@@ -232,7 +232,9 @@ public class PartB {
             for(int b = 0; b < allCornersOfI.size(); b++) {
                 if (a != b) {
                     Cord cb = allCornersOfI.get(b);
-                    if ((ca.x == cb.x && ca.y == cb.y) || (ca.y == cb.y && ca.z == cb.z) || (ca.z == cb.z && ca.x == cb.x)) {
+                    if ((ca.x == cb.x && ca.y == cb.y && !(((ca.z < cj_min.z && cb.z > cj_max.z) || (cb.z < cj_min.z && ca.z > cj_max.z))))
+                        || (ca.y == cb.y && ca.z == cb.z)
+                        || (ca.z == cb.z && ca.x == cb.x)) {
                         counter++;
                     }
                 }
@@ -287,10 +289,10 @@ public class PartB {
         }
     }
 
-    public void checkIfCornerCanBeAdded(TwoCords t, int counter, List<Cord> toAdd, List<Cord> allCornersOfI, int[][] alreadyPlacedCorners, Cord cj_min, Cord cj_max) {
+    public int checkIfCornerCanBeAdded(TwoCords t, int counter, List<Cord> toAdd, List<Cord> allCornersOfI, int[][] alreadyPlacedCorners, Cord cj_min, Cord cj_max) {
         for (int i = 0; i < 2; i++) {
             Cord c = i == 0 ? t.c0 : t.c1;
-            Boolean b = i == 0 ? t.c0b : t.c1b;
+            boolean b = i == 0 ? t.c0b : t.c1b;
             if (b && ((c.x <= cj_min.x && c.y <= cj_min.y) ||
                     (c.z <= cj_min.z && c.y <= cj_min.y) ||
                     (c.x <= cj_min.x && c.z <= cj_min.z) ||
@@ -310,10 +312,11 @@ public class PartB {
                 counter++;
             }
         }
+        return counter;
     }
 
     public long calculateVolume(List<Cord> added, List<Cord> removed) {
-        Long vol = (long) 0;
+        long vol = (long) 0;
         if (removed.size() <= 2) {
             Cord r = removed.get(0);
             for (Cord a : added) {

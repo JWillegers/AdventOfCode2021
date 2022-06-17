@@ -226,6 +226,7 @@ public class PartB {
     public List<Cord> findCornersWithLessThanThreeEdges(List<Cord> allCornersOfI, Cord cj_min, Cord cj_max) {
         System.out.println("===================");
         List<Cord> edges = new ArrayList<>();
+        List<Cord> moreThanThree = new ArrayList<>();
         for(int a = 0; a < allCornersOfI.size(); a++) {
             Cord ca = allCornersOfI.get(a);
             int counter = 0;
@@ -243,6 +244,13 @@ public class PartB {
             if (counter < 3) {
                 edges.add(ca);
                 innerrun = true;
+            } else if (counter > 3) {
+                moreThanThree.add(ca);
+            }
+        }
+        if (innerrun) {
+            for (Cord c : moreThanThree) {
+                allCornersOfI.remove(c);
             }
         }
         return edges;
@@ -299,11 +307,9 @@ public class PartB {
                     (c.x >= cj_max.x && c.y >= cj_max.y) ||
                     (c.z >= cj_max.z && c.y >= cj_max.y) ||
                     (c.x >= cj_max.x && c.z >= cj_max.z) ||
-                    ((c.x == cj_min.x || c.x == cj_max.x) &&
-                    ((c.y == cj_min.y || c.y == cj_max.y) ||
-                    (c.z == cj_min.z || c.z == cj_max.z))) ||
-                    ((c.y == cj_min.y || c.y == cj_max.y) &&
-                    (c.z == cj_min.z || c.z == cj_max.z)))) {
+                    (c.x == cj_min.x || c.x == cj_max.x) ||
+                    (c.y == cj_min.y || c.y == cj_max.y) ||
+                    (c.z == cj_min.z || c.z == cj_max.z))) {
                 toAdd.add(c);
                 allCornersOfI.add(c);
                 alreadyPlacedCorners[counter][0] = c.x;

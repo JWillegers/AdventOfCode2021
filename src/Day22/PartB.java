@@ -56,7 +56,7 @@ public class PartB {
      * Since the last one is (one of the) largest
      */
     public void solution() {
-        /**
+        /*
          * Check the last cube
          */
         Cube currentCube = allCubes.get(allCubes.size() - 1);
@@ -65,12 +65,28 @@ public class PartB {
         } else {
             volume = 0;
         }
-        /**
+        /*
          * Loop through all other cubes
          */
         for (int i = allCubes.size() - 2; i >= 0; i--) {
+            List<Cord> listOfCorners = findAllCorners(allCubes.get(i));
+            List<Cord> cornersInCubes = checkIfCornersAreInsideOtherCubes(listOfCorners);
+            if (cornersInCubes.isEmpty()) {
+                Cube cube = allCubes.get(i);
+                checkedCubes.add(cube);
+                if (cube.on) {
+                    volume += calculateVolume(cube);
+                }
+            } else if (cornersInCubes.size() < 8) {
 
+            } else if (cornersInCubes.size() > 8) {
+                System.exit(8);
+            }
+            /*
+             * if cornersInCubes.size() == 8, its fully inside checked cubes, so it should be already fully counted for (WARNING: there might be cases that this is false)
+             */
         }
+        System.out.println("Answer: " + volume);
     }
 
     /**
@@ -80,5 +96,43 @@ public class PartB {
      */
     public long calculateVolume(Cube c) {
         return (long) Math.abs(c.max.x - c.min.x) * Math.abs(c.max.y - c.min.y) * Math.abs(c.max.z - c.min.z);
+    }
+
+    /**
+     * Find all the corners of cube c, given min and max
+     * @param c
+     * @return
+     */
+    public List<Cord> findAllCorners(Cube c) {
+        List<Cord> returnList = new ArrayList<>();
+        returnList.add(c.min);
+        returnList.add(c.max);
+        returnList.add(new Cord(c.min.x, c.min.y, c.max.z));
+        returnList.add(new Cord(c.min.x, c.max.y, c.max.z));
+        returnList.add(new Cord(c.max.x, c.min.y, c.max.z));
+        returnList.add(new Cord(c.max.x, c.min.y, c.min.z));
+        returnList.add(new Cord(c.max.x, c.max.y, c.min.z));
+        returnList.add(new Cord(c.min.x, c.max.y, c.min.z));
+        return returnList;
+    }
+
+    /**
+     * Check which corners from param are inside a cube from checkedCubes
+     * @param corners
+     * @return
+     */
+    public List<Cord> checkIfCornersAreInsideOtherCubes(List<Cord> corners) {
+        List<Cord> insideOtherCubes = new ArrayList<>();
+        for (Cord c : corners) {
+            for (int i = 0; i < checkedCubes.size(); i++) {
+                Cord min = checkedCubes.get(i).min;
+                Cord max = checkedCubes.get(i).max;
+                if (c.x >= min.x && c.x <= max.x && c.y >= min.y && c.y <= max.y && c.z >= min.z && c.z <= max.z) {
+                    insideOtherCubes.add(c);
+                    break;
+                }
+            }
+        }
+        return insideOtherCubes;
     }
 }

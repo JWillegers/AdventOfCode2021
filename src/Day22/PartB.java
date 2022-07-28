@@ -69,22 +69,7 @@ public class PartB {
          * Loop through all other cubes
          */
         for (int i = allCubes.size() - 2; i >= 0; i--) {
-            List<Cord> listOfCorners = findAllCorners(allCubes.get(i));
-            List<Cord> cornersInCubes = checkIfCornersAreInsideOtherCubes(listOfCorners);
-            if (cornersInCubes.isEmpty()) {
-                Cube cube = allCubes.get(i);
-                checkedCubes.add(cube);
-                if (cube.on) {
-                    volume += calculateVolume(cube);
-                }
-            } else if (cornersInCubes.size() < 8) {
-
-            } else if (cornersInCubes.size() > 8) {
-                System.exit(8);
-            }
-            /*
-             * if cornersInCubes.size() == 8, its fully inside checked cubes, so it should be already fully counted for (WARNING: there might be cases that this is false)
-             */
+            processCube(allCubes.get(i));
         }
         System.out.println("Answer: " + volume);
     }
@@ -134,5 +119,41 @@ public class PartB {
             }
         }
         return insideOtherCubes;
+    }
+
+    public void processCube(Cube cube) {
+        List<Cord> listOfCorners = findAllCorners(cube);
+        List<Cord> cornersInCubes = checkIfCornersAreInsideOtherCubes(listOfCorners);
+        if (cornersInCubes.isEmpty()) {
+            checkedCubes.add(cube);
+            if (cube.on) {
+                volume += calculateVolume(cube);
+            }
+        } else {
+            switch (cornersInCubes.size()) {
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    /*
+                     * if cornersInCubes.size() == 8, its fully inside checked cubes, so it should be already fully counted for (WARNING: there might be cases that this is false)
+                     */
+                    break;
+                default:
+                    System.out.println("cornersInCubes.size() > 8");
+                    System.exit(808);
+            }
+        }
     }
 }

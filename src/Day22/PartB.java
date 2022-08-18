@@ -102,57 +102,85 @@ public class PartB {
     }
 
     /**
-     * Check which corners from param are inside a cube from checkedCubes
+     * Try to find a cube from checkedCubes which has an overlap with cube
      * @param corners
-     * @return
+     * @param cube
      */
-    public List<Cord> checkIfCornersAreInsideOtherCubes(List<Cord> corners) {
-        List<Cord> insideOtherCubes = new ArrayList<>();
-        for (Cord c : corners) {
-            for (int i = 0; i < checkedCubes.size(); i++) {
-                Cord min = checkedCubes.get(i).min;
-                Cord max = checkedCubes.get(i).max;
+    public void checkIfCornersAreInsideOtherCubes(List<Cord> corners, Cube cube) {
+        for (int i = 0; i < checkedCubes.size(); i++) {
+            Cord min = checkedCubes.get(i).min;
+            Cord max = checkedCubes.get(i).max;
+            for (Cord c : corners) {
                 if (c.x >= min.x && c.x <= max.x && c.y >= min.y && c.y <= max.y && c.z >= min.z && c.z <= max.z) {
-                    insideOtherCubes.add(c);
-                    break;
+                    cube.cordsToBeRemoved.add(c);
+                }
+            }
+            if (!cube.cordsToBeRemoved.isEmpty()) {
+                findIntersectionCords(cube, min, max, corners);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Find the intersectionpoints between the 2 cubes found in findIntersectionCords
+     * @param cube
+     * @param min
+     * @param max
+     * @param corners
+     */
+    public void findIntersectionCords(Cube cube, Cord min, Cord max, List<Cord> corners) {
+        for (Cord ctbr : cube.cordsToBeRemoved) {
+            for (int i = 0; i < corners.size(); i++) {
+                Cord cord = corners.get(i);
+                if (!cube.cordsToBeRemoved.contains(cord)) {
+                    if (ctbr.x == cord.x && ctbr.y == cord.y) {
+                        if (cord.z < ctbr.z) {
+                            cube.intersectionCords.add(new Cord(ctbr.x, ctbr.y, min.z));
+                        } else {
+                            cube.intersectionCords.add(new Cord(ctbr.x, ctbr.y, max.z));
+                        }
+                    } else if (ctbr.x == cord.x && ctbr.z == cord.z) {
+                        if (cord.y < ctbr.y) {
+                            cube.intersectionCords.add(new Cord(ctbr.x, min.y, ctbr.z));
+                        } else {
+                            cube.intersectionCords.add(new Cord(ctbr.x, max.y, ctbr.z));
+                        }
+                    } else if (ctbr.z == cord.z && ctbr.y == cord.y) {
+                        if (cord.x < ctbr.x) {
+                            cube.intersectionCords.add(new Cord(min.x, ctbr.y, ctbr.z));
+                        } else {
+                            cube.intersectionCords.add(new Cord(max.x, ctbr.y, ctbr.z));
+                        }
+                    }
                 }
             }
         }
-        return insideOtherCubes;
     }
+
+
 
     public void processCube(Cube cube) {
         List<Cord> listOfCorners = findAllCorners(cube);
-        List<Cord> cornersInCubes = checkIfCornersAreInsideOtherCubes(listOfCorners);
-        if (cornersInCubes.isEmpty()) {
+        checkIfCornersAreInsideOtherCubes(listOfCorners, cube);
+        if (cube.cordsToBeRemoved.isEmpty()) {
             checkedCubes.add(cube);
             if (cube.on) {
                 volume += calculateVolume(cube);
             }
         } else {
-            switch (cornersInCubes.size()) {
+            switch (cube.cordsToBeRemoved.size()) {
                 case 1:
                     break;
                 case 2:
                     break;
-                case 3:
-                    break;
                 case 4:
                     break;
-                case 5:
-                    break;
-                case 6:
-                    break;
-                case 7:
-                    break;
                 case 8:
-                    /*
-                     * if cornersInCubes.size() == 8, its fully inside checked cubes, so it should be already fully counted for (WARNING: there might be cases that this is false)
-                     */
-                    break;
+                    return;
                 default:
-                    System.out.println("cornersInCubes.size() > 8");
-                    System.exit(808);
+                    System.out.println("ERROR: unexpected amount (" + cube.cordsToBeRemoved.size() + ") of corners need to be removed");
+                    System.exit(1);
             }
         }
     }

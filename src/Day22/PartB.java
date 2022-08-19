@@ -72,6 +72,9 @@ public class PartB {
             processCube(allCubes.get(i));
         }
         System.out.println("Answer: " + volume);
+        //In between answer: 644660943211971 [base]
+        //In between answer: 656724885359221 [4 completed]
+
     }
 
     /**
@@ -158,8 +161,6 @@ public class PartB {
         }
     }
 
-
-
     public void processCube(Cube cube) {
         List<Cord> listOfCorners = findAllCorners(cube);
         checkIfCornersAreInsideOtherCubes(listOfCorners, cube);
@@ -175,13 +176,103 @@ public class PartB {
                 case 2:
                     break;
                 case 4:
+                    caseFour(cube, listOfCorners);
                     break;
                 case 8:
-                    return;
+                    //fully inside another cube
+                    break;
                 default:
                     System.out.println("ERROR: unexpected amount (" + cube.cordsToBeRemoved.size() + ") of corners need to be removed");
-                    System.exit(1);
+                    System.exit(1248);
             }
         }
+    }
+
+    /**
+     * Adjust cube in case there are four points that need to be removed
+     * @param cube
+     * @param listOfCorners
+     */
+    public void caseFour(Cube cube, List<Cord> listOfCorners) {
+        if (cube.intersectionCords.size() == 4) {
+            //since there are 4 intersection points, they are on a plane. So first we need to find that plane
+            Cord c0 = cube.intersectionCords.get(0);
+            Cord c1 = cube.intersectionCords.get(1);
+            boolean xPlane = c0.x == c1.x;
+            boolean yPlane = c0.y == c1.y;
+            boolean zPlane = c0.z == c1.z;
+            for (int i = 2; i <= 3; i++) {
+                if (xPlane && yPlane || xPlane && zPlane || yPlane && zPlane) {
+                    Cord c2 = cube.intersectionCords.get(i);
+                    xPlane = xPlane && c0.x == c2.x;
+                    yPlane = yPlane && c0.y == c2.y;
+                    zPlane = zPlane && c0.z == c2.z;
+                }
+            }
+            //check that we found only one plane
+            assert ((xPlane || yPlane || zPlane) && !(xPlane && yPlane || xPlane && zPlane || yPlane && zPlane));
+            //because the adjusted cube should not overlap with the cube it intersects with, we need to find the correct offset with the intersection points
+            int edge = 0;
+            if (xPlane) {
+                if (Math.abs(cube.cordsToBeRemoved.get(0).x - c0.x - 1) < Math.abs(cube.cordsToBeRemoved.get(0).x - c0.x + 1)) {
+                    edge = c0.x - 1;
+                } else {
+                    edge = c0.x + 1;
+                }
+                for (Cord c : cube.cordsToBeRemoved) {
+                    listOfCorners.remove(c);
+                    listOfCorners.add(new Cord(edge, c.y, c.z));
+                }
+            } else if (yPlane) {
+                if (Math.abs(cube.cordsToBeRemoved.get(0).y - c0.y - 1) < Math.abs(cube.cordsToBeRemoved.get(0).y - c0.y + 1)) {
+                    edge = c0.y - 1;
+                } else {
+                    edge = c0.y + 1;
+                }
+                for (Cord c : cube.cordsToBeRemoved) {
+                    listOfCorners.remove(c);
+                    listOfCorners.add(new Cord(c.x, edge, c.z));
+                }
+            } else { //zPlane
+                if (Math.abs(cube.cordsToBeRemoved.get(0).z - c0.z - 1) < Math.abs(cube.cordsToBeRemoved.get(0).z - c0.z + 1)) {
+                    edge = c0.z - 1;
+                } else {
+                    edge = c0.z + 1;
+                }
+                for (Cord c : cube.cordsToBeRemoved) {
+                    listOfCorners.remove(c);
+                    listOfCorners.add(new Cord(c.x, c.y, edge));
+                }
+            }
+            List<Cord> minmax = findMinMax(listOfCorners);
+            processCube(new Cube(minmax.get(0), minmax.get(1), cube.on));
+        } else {
+            System.out.println("ERROR: not enough or too many intersection points.\nExpected: 4\nActual: " + cube.intersectionCords.size());
+            System.exit(1);
+        }
+    }
+
+    /**
+     * From a list of corners, find the cords with all the lowest values and the cords with all the highest values
+     * @param listOfCorners
+     * @return <min, max>
+     */
+    public List<Cord> findMinMax(List<Cord> listOfCorners) {
+        Cord c = listOfCorners.get(0);
+        Cord min = new Cord(c.x, c.y, c.z);
+        Cord max = new Cord(c.x, c.y, c.z);
+        for(int i = 1; i < listOfCorners.size(); i++) {
+            c = listOfCorners.get(i);
+            min.x = Math.min(min.x, c.x);
+            min.y = Math.min(min.y, c.y);
+            min.z = Math.min(min.z, c.z);
+            max.x = Math.max(max.x, c.x);
+            max.y = Math.max(max.y, c.y);
+            max.z = Math.max(max.z, c.z);
+        }
+        List<Cord> returnList = new ArrayList<>();
+        returnList.add(min);
+        returnList.add(max);
+        return returnList;
     }
 }

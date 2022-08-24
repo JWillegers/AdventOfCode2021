@@ -12,7 +12,7 @@ public class PartB {
     private List<Cube> checkedCubes;
     private long volume;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IncorrectSizeException, XORException {
         PartB part = new PartB();
         part.setup();
         part.solution();
@@ -55,7 +55,7 @@ public class PartB {
      * Main method for calculating the solution, from last cube in the list to the first one.
      * Since the last one is (one of the) largest
      */
-    public void solution() {
+    public void solution() throws IncorrectSizeException, XORException {
         /*
          * Check the last cube
          */
@@ -161,7 +161,7 @@ public class PartB {
         }
     }
 
-    public void processCube(Cube cube) {
+    public void processCube(Cube cube) throws IncorrectSizeException, XORException {
         List<Cord> listOfCorners = findAllCorners(cube);
         checkIfCornersAreInsideOtherCubes(listOfCorners, cube);
         if (cube.cordsToBeRemoved.isEmpty()) {
@@ -174,6 +174,7 @@ public class PartB {
                 case 1:
                     break;
                 case 2:
+                    caseTwo(cube, listOfCorners);
                     break;
                 case 4:
                     caseFour(cube, listOfCorners);
@@ -188,12 +189,80 @@ public class PartB {
         }
     }
 
+    public void caseTwo(Cube cube, List<Cord> listOfCorners) throws IncorrectSizeException, XORException {
+        String methodname = new Object().getClass().getEnclosingMethod().getName();
+        if (cube.intersectionCords.size() == 4) {
+            //the two cords that need to be removed lie on one line, so we need to find that line
+            Cord r0 = cube.cordsToBeRemoved.get(0);
+            Cord r1 = cube.cordsToBeRemoved.get(1);
+            boolean xLine = r0.y == r1.y && r0.z == r1.z;
+            boolean yLine = r0.x == r1.x && r0.z == r1.z;
+            boolean zLine = r0.y == r1.y && r0.x == r1.x;
+            if (!((xLine || yLine || zLine) && !((xLine && yLine) || (xLine && zLine) || (yLine && zLine)))) {
+                throw new XORException(methodname, xLine, yLine, zLine);
+            }
+            //Now we need to find the 2 new cubes
+            if (xLine) {
+                caseTwoX(cube, listOfCorners, r0, r1);
+            }
+        } else {
+            throw new IncorrectSizeException(methodname, 4, cube.intersectionCords.size());
+        }
+    }
+
+    public void caseTwoX (Cube cube, List<Cord> listOfCorners, Cord r0, Cord r1) throws IncorrectSizeException, XORException {
+        String methodname = new Object().getClass().getEnclosingMethod().getName();
+        listOfCorners.remove(r0);
+        listOfCorners.remove(r1);
+        List<Cord> secondCube = new ArrayList<>();
+        for (Cord loc : listOfCorners) {
+            if (loc.x == r0.x && loc.y == r0.y || loc.x == r1.x && loc.y == r1.y) {
+                secondCube.add(loc);
+            }
+        }
+        listOfCorners.removeAll(secondCube);
+        if (secondCube.size() != 2) {
+            throw new IncorrectSizeException(methodname, 2, secondCube.size());
+        }
+        int yLine = 0;
+        for (Cord ic : cube.intersectionCords) {
+            int offset = 1;
+            if (ic.y == r0.y || ic.y == r1.y) {
+                if (r0.y == cube.max.y) {
+                    offset = -1;
+                }
+                yLine = ic.y;
+                listOfCorners.add(new Cord(ic.x, yLine + offset, ic.z));
+                listOfCorners.add(new Cord(ic.x ,yLine + offset, secondCube.get(0).z));
+            } else {
+                if (r0.z == cube.max.z) {
+                    offset = -1;
+                }
+                listOfCorners.add(new Cord(ic.x, ic.y, ic.z + offset));
+            }
+        }
+        List<Cord> toAdd = new ArrayList<>();
+        for (Cord c : secondCube) {
+            toAdd.add(new Cord(c.x, yLine, c.z));
+        }
+        secondCube.addAll(toAdd);
+
+
+        //find minmax of both cubes and process the cubes
+        List<Cord> minmax1 = findMinMax(listOfCorners);
+        processCube(new Cube(minmax1.get(0), minmax1.get(1), cube.on));
+        List<Cord> minmax2 = findMinMax(secondCube);
+        processCube(new Cube(minmax2.get(0), minmax2.get(1), cube.on));
+    }
+
+
     /**
      * Adjust cube in case there are four points that need to be removed
      * @param cube
      * @param listOfCorners
      */
-    public void caseFour(Cube cube, List<Cord> listOfCorners) {
+    public void caseFour(Cube cube, List<Cord> listOfCorners) throws IncorrectSizeException, XORException {
+        String methodname = new Object().getClass().getEnclosingMethod().getName();
         if (cube.intersectionCords.size() == 4) {
             //since there are 4 intersection points, they are on a plane. So first we need to find that plane
             Cord c0 = cube.intersectionCords.get(0);
@@ -210,7 +279,9 @@ public class PartB {
                 }
             }
             //check that we found only one plane
-            assert ((xPlane || yPlane || zPlane) && !(xPlane && yPlane || xPlane && zPlane || yPlane && zPlane));
+            if (!((xPlane || yPlane || zPlane) && !(xPlane && yPlane || xPlane && zPlane || yPlane && zPlane))) {
+                throw new XORException(methodname, xPlane, yPlane, zPlane);
+            }
             //because the adjusted cube should not overlap with the cube it intersects with, we need to find the correct offset with the intersection points
             int edge = 0;
             if (xPlane) {
@@ -247,8 +318,7 @@ public class PartB {
             List<Cord> minmax = findMinMax(listOfCorners);
             processCube(new Cube(minmax.get(0), minmax.get(1), cube.on));
         } else {
-            System.out.println("ERROR: not enough or too many intersection points.\nExpected: 4\nActual: " + cube.intersectionCords.size());
-            System.exit(1);
+            throw new IncorrectSizeException(methodname, 4, cube.intersectionCords.size());
         }
     }
 

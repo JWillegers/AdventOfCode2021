@@ -12,6 +12,12 @@ public class PartB {
     private List<Cube> checkedCubes;
     private long volume;
 
+    protected enum Direction {
+        X,
+        Y,
+        Z
+    }
+
     public static void main(String[] args) throws IncorrectSizeException, XORException {
         PartB part = new PartB();
         part.setup();
@@ -71,11 +77,12 @@ public class PartB {
         for (int i = allCubes.size() - 2; i >= 0; i--) {
             processCube(allCubes.get(i));
         }
-        System.out.println("Last known answer: 698287205358124");
-        System.out.println("Answer: " + volume);
+        System.out.println("Last known answer: 814903659777951");
+        System.out.println("___Current answer: " + volume);
         //In between answer: 644660943211971 [base]
         //In between answer: 656724885359221 [4 completed]
         //In between answer: 698287205358124 [4 completed and 2 xLine completed]
+        //In between answer: 814903659777951 [4 & 2 completed]
 
     }
 

@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CaseTwo {
-    PartB pb;
+    private PartB pb;
+    private int line;
 
     public CaseTwo(PartB pb) {
         this.pb = pb;
+        this.line = 0;
     }
 
     /**
@@ -30,42 +32,29 @@ public class CaseTwo {
                 throw new XORException(methodname, xLine, yLine, zLine);
             }
             //Now we need to find the 2 new cubes
+            List<PartB.Direction> directionList = new ArrayList<>();
             if (xLine) {
-                x(cube, listOfCorners, r0, r1);
+                directionList.add(PartB.Direction.Z);
+                directionList.add(PartB.Direction.X);
+                directionList.add(PartB.Direction.Y);
+            } else if (yLine) {
+                directionList.add(PartB.Direction.X);
+                directionList.add(PartB.Direction.Y);
+                directionList.add(PartB.Direction.Z);
+            } else {
+                directionList.add(PartB.Direction.Y);
+                directionList.add(PartB.Direction.Z);
+                directionList.add(PartB.Direction.X);
             }
+            List<List<Cord>> llc = createSecondCube(listOfCorners, r0, r1, directionList.get(0));
+            listOfCorners = llc.get(0);
+            List<Cord> secondCube = llc.get(1);
+            findNewCornersBasedOnIntersectionCords(cube, r0, listOfCorners, secondCube, directionList.get(0), directionList.get(1));
+            secondCube = finishSecondCube(secondCube, directionList.get(2));
+            finalStep(listOfCorners, secondCube, cube);
         } else {
             throw new IncorrectSizeException(methodname, 4, cube.intersectionCords.size());
         }
-    }
-
-    public void x(Cube cube, List<Cord> listOfCorners, Cord r0, Cord r1) throws IncorrectSizeException, XORException {
-        List<List<Cord>> llc = createSecondCube(listOfCorners, r0, r1, "z");
-        listOfCorners = llc.get(0);
-        List<Cord> secondCube = llc.get(1);
-        int yLine = 0;
-        for (Cord ic : cube.intersectionCords) {
-            int offset = 1;
-            if (ic.z == r0.z) { //x is the same as one of the two r, and z is the same as both
-                if (r0.y == cube.max.y) {
-                    offset = -1;
-                }
-                yLine = ic.y;
-                listOfCorners.add(new Cord(ic.x, yLine + offset, ic.z));
-                listOfCorners.add(new Cord(ic.x ,yLine + offset, secondCube.get(0).z));
-            } else {
-                if (r0.z == cube.max.z) {
-                    offset = -1;
-                }
-                secondCube.add(new Cord(ic.x, ic.y, ic.z + offset));
-            }
-        }
-        List<Cord> toAdd = new ArrayList<>();
-        for (Cord c : secondCube) {
-            toAdd.add(new Cord(c.x, yLine, c.z));
-        }
-        secondCube.addAll(toAdd);
-
-        finalStep(listOfCorners, secondCube, cube);
     }
 
     /**
@@ -75,19 +64,19 @@ public class CaseTwo {
      * @param listOfCorners
      * @param r0
      * @param r1
-     * @param ignore
+     * @param findDifferent
      * @return
      * @throws IncorrectSizeException
      */
-    public List<List<Cord>> createSecondCube(List<Cord> listOfCorners, Cord r0, Cord r1, String ignore) throws IncorrectSizeException {
+    public List<List<Cord>> createSecondCube(List<Cord> listOfCorners, Cord r0, Cord r1, PartB.Direction findDifferent) throws IncorrectSizeException {
         String methodname = new Object() {}.getClass().getEnclosingMethod().getName();
         listOfCorners.remove(r0);
         listOfCorners.remove(r1);
         List<Cord> secondCube = new ArrayList<>();
         for (Cord loc : listOfCorners) {
-            if ((ignore.equals("z") && (loc.x == r0.x && loc.y == r0.y || loc.x == r1.x && loc.y == r1.y)) ||
-                    (ignore.equals("y") && (loc.x == r0.x && loc.z == r0.z || loc.x == r1.x && loc.z == r1.z)) ||
-                    (ignore.equals("x") && (loc.z == r0.z && loc.y == r0.y || loc.z == r1.z && loc.y == r1.y))) {
+            if ((findDifferent == PartB.Direction.Z && (loc.x == r0.x && loc.y == r0.y || loc.x == r1.x && loc.y == r1.y)) ||
+                    (findDifferent == PartB.Direction.Y && (loc.x == r0.x && loc.z == r0.z || loc.x == r1.x && loc.z == r1.z)) ||
+                    (findDifferent == PartB.Direction.X && (loc.z == r0.z && loc.y == r0.y || loc.z == r1.z && loc.y == r1.y))) {
                 secondCube.add(loc);
             }
         }
@@ -99,6 +88,97 @@ public class CaseTwo {
         returnObject.add(listOfCorners);
         returnObject.add(secondCube);
         return returnObject;
+    }
+
+
+    /**
+     * trying to get as many new corners as possible based on the intersection points and the currently known points
+     * note: this is one of the methods that probably could do with some tiding up.
+     * @param cube
+     * @param r0
+     * @param listOfCorners
+     * @param secondCube
+     * @param overlapRemove
+     * @param currentDirection
+     */
+    public void findNewCornersBasedOnIntersectionCords(Cube cube, Cord r0, List<Cord> listOfCorners, List<Cord> secondCube, PartB.Direction overlapRemove, PartB.Direction currentDirection) {
+        for (Cord ic : cube.intersectionCords) {
+            //if ic has the same cord with r0 in the overlapRemove direction -> the new cord will be part of listOfCorners
+            //else the new cord will be part of secondCube
+            if ((overlapRemove == PartB.Direction.X && ic.x == r0.x)
+                    || (overlapRemove == PartB.Direction.Y && ic.y == r0.y)
+                    ||(overlapRemove == PartB.Direction.Z && ic.z == r0.z)) {
+                int offset = 1;
+                if (currentDirection == PartB.Direction.X) {
+                    if (r0.y == cube.max.y) {
+                        offset = -1;
+                    }
+                    line = ic.y;
+                    listOfCorners.add(new Cord(ic.x, line + offset, ic.z));
+                    listOfCorners.add(new Cord(ic.x ,line + offset, secondCube.get(0).z));
+                } else if (currentDirection == PartB.Direction.Y) {
+                    if (r0.z == cube.max.z) {
+                        offset = -1;
+                    }
+                    line = ic.z;
+                    listOfCorners.add(new Cord(ic.x, ic.y, line + offset));
+                    listOfCorners.add(new Cord(secondCube.get(0).x, ic.y, line + offset));
+                } else {
+                    if (r0.x == cube.max.x) {
+                        offset = -1;
+                    }
+                    line = ic.x;
+                    listOfCorners.add(new Cord(line + offset, ic.y, ic.z));
+                    listOfCorners.add(new Cord(line + offset, secondCube.get(0).y, ic.z));
+                }
+            } else {
+                int offsetX = 1;
+                int offsetY = 1;
+                int offsetZ = 1;
+                if (overlapRemove == PartB.Direction.X) {
+                    if (cube.max.x == r0.x) {
+                        offsetX = -1;
+                    }
+                } else {
+                    offsetX = 0;
+                }
+                if (overlapRemove == PartB.Direction.Y) {
+                    if (cube.max.y == r0.y) {
+                        offsetY = -1;
+                    }
+                } else {
+                    offsetY = 0;
+                }
+                if (overlapRemove == PartB.Direction.Z) {
+                    if (cube.max.z == r0.z) {
+                        offsetZ = -1;
+                    }
+                } else {
+                    offsetZ = 0;
+                }
+                secondCube.add(new Cord(ic.x + offsetX, ic.y + offsetY, ic.z + offsetZ));
+            }
+        }
+    }
+
+    /**
+     * get secondCube from 4 to 8 corners with help of line and lineDirection
+     * @param secondCube
+     * @param lineDirection
+     * @return
+     */
+    public List<Cord> finishSecondCube(List<Cord> secondCube, PartB.Direction lineDirection) throws IncorrectSizeException {
+        if (secondCube.size() != 4) {
+            throw new IncorrectSizeException(new Object() {}.getClass().getEnclosingMethod().getName(), 4, secondCube.size());
+        }
+        List<Cord> toAdd = new ArrayList<>();
+        for (Cord c : secondCube) {
+            toAdd.add(new Cord(lineDirection == PartB.Direction.X ? line : c.x,
+                    lineDirection == PartB.Direction.Y ? line : c.y,
+                    lineDirection == PartB.Direction.Z ? line : c.z));
+        }
+        secondCube.addAll(toAdd);
+        return secondCube;
     }
 
     /**

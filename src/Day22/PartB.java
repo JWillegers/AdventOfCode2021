@@ -75,6 +75,7 @@ public class PartB {
          * Loop through all other cubes
          */
         for (int i = allCubes.size() - 2; i >= 0; i--) {
+            System.out.println(i);
             processCube(allCubes.get(i));
         }
         System.out.println("Last known answer: 814903659777951");
@@ -83,7 +84,6 @@ public class PartB {
         //In between answer: 656724885359221 [4 completed]
         //In between answer: 698287205358124 [4 completed and 2 xLine completed]
         //In between answer: 814903659777951 [4 & 2 completed]
-
     }
 
     /**
@@ -170,6 +170,13 @@ public class PartB {
         }
     }
 
+    /**
+     * find all corners of the cube, the cords that need to be removed and any intersection points
+     * after that call the correct class to process all this information
+     * @param cube
+     * @throws IncorrectSizeException
+     * @throws XORException
+     */
     public void processCube(Cube cube) throws IncorrectSizeException, XORException {
         List<Cord> listOfCorners = findAllCorners(cube);
         checkIfCornersAreInsideOtherCubes(listOfCorners, cube);
@@ -181,6 +188,8 @@ public class PartB {
         } else {
             switch (cube.cordsToBeRemoved.size()) {
                 case 1:
+                    CaseOne co = new CaseOne(this);
+                    co.main(cube, listOfCorners);
                     break;
                 case 2:
                     CaseTwo ct = new CaseTwo(this);

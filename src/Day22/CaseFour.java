@@ -33,31 +33,19 @@ public class CaseFour {
             //because the adjusted cube should not overlap with the cube it intersects with, we need to find the correct offset with the intersection points
             int edge = 0;
             if (xPlane) {
-                if (Math.abs(cube.cordsToBeRemoved.get(0).x - c0.x - 1) < Math.abs(cube.cordsToBeRemoved.get(0).x - c0.x + 1)) {
-                    edge = c0.x - 1;
-                } else {
-                    edge = c0.x + 1;
-                }
+                edge = Math.abs(cube.cordsToBeRemoved.get(0).x - c0.x - 1) < Math.abs(cube.cordsToBeRemoved.get(0).x - c0.x + 1) ? c0.x - 1 : c0.x + 1;
                 for (Cord c : cube.cordsToBeRemoved) {
                     listOfCorners.remove(c);
                     listOfCorners.add(new Cord(edge, c.y, c.z));
                 }
             } else if (yPlane) {
-                if (Math.abs(cube.cordsToBeRemoved.get(0).y - c0.y - 1) < Math.abs(cube.cordsToBeRemoved.get(0).y - c0.y + 1)) {
-                    edge = c0.y - 1;
-                } else {
-                    edge = c0.y + 1;
-                }
+                edge = Math.abs(cube.cordsToBeRemoved.get(0).y - c0.y - 1) < Math.abs(cube.cordsToBeRemoved.get(0).y - c0.y + 1) ? c0.y - 1 : c0.y + 1;
                 for (Cord c : cube.cordsToBeRemoved) {
                     listOfCorners.remove(c);
                     listOfCorners.add(new Cord(c.x, edge, c.z));
                 }
             } else { //zPlane
-                if (Math.abs(cube.cordsToBeRemoved.get(0).z - c0.z - 1) < Math.abs(cube.cordsToBeRemoved.get(0).z - c0.z + 1)) {
-                    edge = c0.z - 1;
-                } else {
-                    edge = c0.z + 1;
-                }
+                edge = Math.abs(cube.cordsToBeRemoved.get(0).z - c0.z - 1) < Math.abs(cube.cordsToBeRemoved.get(0).z - c0.z + 1) ? c0.z - 1 : c0.z + 1;
                 for (Cord c : cube.cordsToBeRemoved) {
                     listOfCorners.remove(c);
                     listOfCorners.add(new Cord(c.x, c.y, edge));

@@ -53,7 +53,7 @@ public class CaseTwo {
             secondCube = finishSecondCube(secondCube, directionList.get(2));
             finalStep(listOfCorners, secondCube, cube);
         } else {
-            throw new IncorrectSizeException(methodname, 4, cube.intersectionCords.size());
+            throw new IncorrectSizeException("caseTwo." + methodname, 4, cube.intersectionCords.size());
         }
     }
 

@@ -75,7 +75,7 @@ public class PartB {
          * Loop through all other cubes
          */
         for (int i = allCubes.size() - 2; i >= 0; i--) {
-            System.out.println(i);
+            System.out.println("XXX   " + i);
             processCube(allCubes.get(i));
         }
         System.out.println("Last known answer: 814903659777951");
@@ -179,6 +179,7 @@ public class PartB {
      */
     public void processCube(Cube cube) throws IncorrectSizeException, XORException {
         List<Cord> listOfCorners = findAllCorners(cube);
+        printCube(listOfCorners);
         checkIfCornersAreInsideOtherCubes(listOfCorners, cube);
         if (cube.cordsToBeRemoved.isEmpty()) {
             checkedCubes.add(cube);

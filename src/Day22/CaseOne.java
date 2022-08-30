@@ -10,6 +10,14 @@ public class CaseOne {
         this.pb = partB;
     }
 
+    /**
+     * Main part of caseOne, where first the midpoint (which sees all intersection cords) is found
+     * after that there are 3 new cubes calculated
+     * @param cube
+     * @param listOfCorners
+     * @throws IncorrectSizeException
+     * @throws XORException
+     */
     public void main(Cube cube, List<Cord> listOfCorners) throws IncorrectSizeException, XORException {
         String methodname = new Object() {}.getClass().getEnclosingMethod().getName();
         if (cube.intersectionCords.size() == 3) {
@@ -60,6 +68,15 @@ public class CaseOne {
         }
     }
 
+    /**
+     * Find all cords for the small cube, based on the known cords for it and the mid point
+     * @param cubeSmall
+     * @param midX
+     * @param midY
+     * @param midZ
+     * @return
+     * @throws IncorrectSizeException
+     */
     public List<Cord> solveCubeSmall(List<Cord> cubeSmall, int midX, int midY, int midZ) throws IncorrectSizeException {
         String methodname = new Object() {}.getClass().getEnclosingMethod().getName();
         if (cubeSmall.size() != 1) {
@@ -78,6 +95,14 @@ public class CaseOne {
         return cubeSmall;
     }
 
+    /**
+     * Find all cords for the medium cube, based on the known cords for it and the mid point
+     * @param cubeMedium
+     * @param midY
+     * @param midZ
+     * @return
+     * @throws IncorrectSizeException
+     */
     public List<Cord> solveCubeMedium(List<Cord> cubeMedium, int midY, int midZ) throws IncorrectSizeException {
         String methodname = new Object() {}.getClass().getEnclosingMethod().getName();
         pb.printCube(cubeMedium);
@@ -99,6 +124,13 @@ public class CaseOne {
         return cubeMedium;
     }
 
+    /**
+     * Find all cords for the large cube, based on the known cords for it and the mid point
+     * @param cubeLarge
+     * @param midZ
+     * @return
+     * @throws IncorrectSizeException
+     */
     public List<Cord> solveCubeLarge(List<Cord> cubeLarge, int midZ) throws IncorrectSizeException {
         String methodname = new Object() {}.getClass().getEnclosingMethod().getName();
         if (cubeLarge.size() != 4) {

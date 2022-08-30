@@ -13,17 +13,17 @@ public class CaseFour {
         String methodname = new Object() {}.getClass().getEnclosingMethod().getName();
         if (cube.intersectionCords.size() == 4) {
             //since there are 4 intersection points, they are on a plane. So first we need to find that plane
-            Cord c0 = cube.intersectionCords.get(0);
+            Cord intersectionCord0 = cube.intersectionCords.get(0);
             Cord c1 = cube.intersectionCords.get(1);
-            boolean xPlane = c0.x == c1.x;
-            boolean yPlane = c0.y == c1.y;
-            boolean zPlane = c0.z == c1.z;
+            boolean xPlane = intersectionCord0.x == c1.x;
+            boolean yPlane = intersectionCord0.y == c1.y;
+            boolean zPlane = intersectionCord0.z == c1.z;
             for (int i = 2; i <= 3; i++) {
                 if (xPlane && yPlane || xPlane && zPlane || yPlane && zPlane) {
                     Cord c2 = cube.intersectionCords.get(i);
-                    xPlane = xPlane && c0.x == c2.x;
-                    yPlane = yPlane && c0.y == c2.y;
-                    zPlane = zPlane && c0.z == c2.z;
+                    xPlane = xPlane && intersectionCord0.x == c2.x;
+                    yPlane = yPlane && intersectionCord0.y == c2.y;
+                    zPlane = zPlane && intersectionCord0.z == c2.z;
                 }
             }
             //check that we found only one plane
@@ -31,21 +31,33 @@ public class CaseFour {
                 throw new XORException(methodname, xPlane, yPlane, zPlane);
             }
             //because the adjusted cube should not overlap with the cube it intersects with, we need to find the correct offset with the intersection points
-            int edge = 0;
+            int edge;
             if (xPlane) {
-                edge = Math.abs(cube.cordsToBeRemoved.get(0).x - c0.x - 1) < Math.abs(cube.cordsToBeRemoved.get(0).x - c0.x + 1) ? c0.x - 1 : c0.x + 1;
+                if (cube.cordsToBeRemoved.get(0).x != intersectionCord0.x) {
+                    edge = Math.abs(cube.cordsToBeRemoved.get(0).x - intersectionCord0.x - 1) < Math.abs(cube.cordsToBeRemoved.get(0).x - intersectionCord0.x + 1) ? intersectionCord0.x - 1 : intersectionCord0.x + 1;
+                } else {
+                    edge = Math.abs(listOfCorners.get(0).x - intersectionCord0.x - 1) > Math.abs(listOfCorners.get(0).x - intersectionCord0.x + 1) ? intersectionCord0.x - 1 : intersectionCord0.x + 1;
+                }
                 for (Cord c : cube.cordsToBeRemoved) {
                     listOfCorners.remove(c);
                     listOfCorners.add(new Cord(edge, c.y, c.z));
                 }
             } else if (yPlane) {
-                edge = Math.abs(cube.cordsToBeRemoved.get(0).y - c0.y - 1) < Math.abs(cube.cordsToBeRemoved.get(0).y - c0.y + 1) ? c0.y - 1 : c0.y + 1;
+                if (cube.cordsToBeRemoved.get(0).y != intersectionCord0.y) {
+                    edge = Math.abs(cube.cordsToBeRemoved.get(0).y - intersectionCord0.y - 1) < Math.abs(cube.cordsToBeRemoved.get(0).y - intersectionCord0.y + 1) ? intersectionCord0.y - 1 : intersectionCord0.y + 1;
+                } else {
+                    edge = Math.abs(listOfCorners.get(0).y - intersectionCord0.y - 1) > Math.abs(listOfCorners.get(0).y - intersectionCord0.y + 1) ? intersectionCord0.y - 1 : intersectionCord0.y + 1;
+                }
                 for (Cord c : cube.cordsToBeRemoved) {
                     listOfCorners.remove(c);
                     listOfCorners.add(new Cord(c.x, edge, c.z));
                 }
-            } else { //zPlane
-                edge = Math.abs(cube.cordsToBeRemoved.get(0).z - c0.z - 1) < Math.abs(cube.cordsToBeRemoved.get(0).z - c0.z + 1) ? c0.z - 1 : c0.z + 1;
+            } else {
+                if (cube.cordsToBeRemoved.get(0).z != intersectionCord0.z) {
+                    edge = Math.abs(cube.cordsToBeRemoved.get(0).z - intersectionCord0.z - 1) < Math.abs(cube.cordsToBeRemoved.get(0).z - intersectionCord0.z + 1) ? intersectionCord0.z - 1 : intersectionCord0.z + 1;
+                } else {
+                    edge = Math.abs(listOfCorners.get(0).z - intersectionCord0.z - 1) > Math.abs(listOfCorners.get(0).z - intersectionCord0.z + 1) ? intersectionCord0.z - 1 : intersectionCord0.z + 1;
+                }
                 for (Cord c : cube.cordsToBeRemoved) {
                     listOfCorners.remove(c);
                     listOfCorners.add(new Cord(c.x, c.y, edge));

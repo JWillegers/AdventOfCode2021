@@ -172,7 +172,7 @@ public class CaseTwo {
      */
     public List<Cord> finishSecondCube(List<Cord> secondCube, PartB.Direction lineDirection) throws IncorrectSizeException {
         if (secondCube.size() != 4) {
-            System.out.println("=====================");
+            System.out.println("Points in secondCube:\n=====================");
             for (Cord c : secondCube) {
                 System.out.println(c.x + ", " + c.y + ", " + c.z);
             }

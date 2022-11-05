@@ -199,7 +199,8 @@ public class PartB {
                 }
             }
             if (xPlane || yPlane || zPlane) {
-                //TODO
+                CasePlane cp = new CasePlane(this);
+                cp.main(cube, listOfCorners, xPlane, yPlane, zPlane);
             } else {
                 switch (cube.cordsToBeRemoved.size()) {
                     case 1:

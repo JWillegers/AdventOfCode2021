@@ -75,7 +75,7 @@ public class PartB {
          * Loop through all other cubes
          */
         for (int i = allCubes.size() - 2; i >= 0; i--) {
-            System.out.println("XXX   " + i);
+            System.out.println("Currently checking: " + i);
             processCube(allCubes.get(i));
         }
         System.out.println("Last known answer: 814903659777951");
@@ -149,19 +149,19 @@ public class PartB {
                     if (ctbr.x == cord.x && ctbr.y == cord.y) {
                         if (cord.z < ctbr.z) {
                             cube.intersectionCords.add(new Cord(ctbr.x, ctbr.y, min.z));
-                        } else {
+                        } else if (cord.z > ctbr.z) {
                             cube.intersectionCords.add(new Cord(ctbr.x, ctbr.y, max.z));
                         }
                     } else if (ctbr.x == cord.x && ctbr.z == cord.z) {
                         if (cord.y < ctbr.y) {
                             cube.intersectionCords.add(new Cord(ctbr.x, min.y, ctbr.z));
-                        } else {
+                        } else if (cord.y > ctbr.y) {
                             cube.intersectionCords.add(new Cord(ctbr.x, max.y, ctbr.z));
                         }
                     } else if (ctbr.z == cord.z && ctbr.y == cord.y) {
                         if (cord.x < ctbr.x) {
                             cube.intersectionCords.add(new Cord(min.x, ctbr.y, ctbr.z));
-                        } else {
+                        } else if (cord.x > ctbr.x) {
                             cube.intersectionCords.add(new Cord(max.x, ctbr.y, ctbr.z));
                         }
                     }
@@ -182,30 +182,45 @@ public class PartB {
         printCube(listOfCorners);
         checkIfCornersAreInsideOtherCubes(listOfCorners, cube);
         if (cube.cordsToBeRemoved.isEmpty()) {
+            System.out.println("Calculating volume");
             checkedCubes.add(cube);
             if (cube.on) {
                 volume += calculateVolume(cube);
             }
         } else {
-            switch (cube.cordsToBeRemoved.size()) {
-                case 1:
-                    CaseOne co = new CaseOne(this);
-                    co.main(cube, listOfCorners);
-                    break;
-                case 2:
-                    CaseTwo ct = new CaseTwo(this);
-                    ct.main(cube, listOfCorners);
-                    break;
-                case 4:
-                    CaseFour cf = new CaseFour();
-                    cf.caseFour(cube, listOfCorners, this);
-                    break;
-                case 8:
-                    //fully inside another cube
-                    break;
-                default:
-                    System.out.println("ERROR: unexpected amount (" + cube.cordsToBeRemoved.size() + ") of corners need to be removed");
-                    System.exit(1248);
+            boolean xPlane = true;
+            boolean yPlane = true;
+            boolean zPlane = true;
+            for (int i = 0; i < listOfCorners.size(); i++) {
+                for (int j = 0; j < listOfCorners.size(); j++) {
+                    xPlane = xPlane && listOfCorners.get(i).x == listOfCorners.get(j).x;
+                    yPlane = yPlane && listOfCorners.get(i).y == listOfCorners.get(j).y;
+                    zPlane = zPlane && listOfCorners.get(i).z == listOfCorners.get(j).z;
+                }
+            }
+            if (xPlane || yPlane || zPlane) {
+                //TODO
+            } else {
+                switch (cube.cordsToBeRemoved.size()) {
+                    case 1:
+                        CaseOne co = new CaseOne(this);
+                        co.main(cube, listOfCorners);
+                        break;
+                    case 2:
+                        CaseTwo ct = new CaseTwo(this);
+                        ct.main(cube, listOfCorners);
+                        break;
+                    case 4:
+                        CaseFour cf = new CaseFour();
+                        cf.caseFour(cube, listOfCorners, this);
+                        break;
+                    case 8:
+                        //fully inside another cube
+                        break;
+                    default:
+                        System.out.println("ERROR: unexpected amount (" + cube.cordsToBeRemoved.size() + ") of corners need to be removed");
+                        System.exit(1248);
+                }
             }
         }
     }

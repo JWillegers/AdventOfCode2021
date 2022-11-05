@@ -53,6 +53,9 @@ public class CaseTwo {
             secondCube = finishSecondCube(secondCube, directionList.get(2));
             finalStep(listOfCorners, secondCube, cube);
         } else {
+            for (Cord c : cube.intersectionCords) {
+                System.out.println(c.x + ", " + c.y + ", " + c.z);
+            }
             throw new IncorrectSizeException("caseTwo." + methodname, 4, cube.intersectionCords.size());
         }
     }
@@ -169,6 +172,10 @@ public class CaseTwo {
      */
     public List<Cord> finishSecondCube(List<Cord> secondCube, PartB.Direction lineDirection) throws IncorrectSizeException {
         if (secondCube.size() != 4) {
+            System.out.println("=====================");
+            for (Cord c : secondCube) {
+                System.out.println(c.x + ", " + c.y + ", " + c.z);
+            }
             throw new IncorrectSizeException(new Object() {}.getClass().getEnclosingMethod().getName(), 4, secondCube.size());
         }
         List<Cord> toAdd = new ArrayList<>();

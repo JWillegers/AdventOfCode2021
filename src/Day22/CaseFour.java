@@ -66,6 +66,9 @@ public class CaseFour {
             List<Cord> minmax = pb.findMinMax(listOfCorners);
             pb.processCube(new Cube(minmax.get(0), minmax.get(1), cube.on));
         } else {
+            for (Cord c : cube.intersectionCords) {
+                System.out.println(c.x + ", " + c.y + ", " + c.z);
+            }
             throw new IncorrectSizeException(methodname, 4, cube.intersectionCords.size());
         }
     }

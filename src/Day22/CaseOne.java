@@ -64,6 +64,9 @@ public class CaseOne {
             pb.processCube(new Cube(minmaxLarge.get(0), minmaxLarge.get(1), cube.on));
 
         } else {
+            for (Cord c : cube.intersectionCords) {
+                System.out.println(c.x + ", " + c.y + ", " + c.z);
+            }
             throw new IncorrectSizeException("CaseOne." + methodname, 3, cube.intersectionCords.size());
         }
     }
@@ -105,7 +108,6 @@ public class CaseOne {
      */
     public List<Cord> solveCubeMedium(List<Cord> cubeMedium, int midY, int midZ) throws IncorrectSizeException {
         String methodname = new Object() {}.getClass().getEnclosingMethod().getName();
-        pb.printCube(cubeMedium);
         if (cubeMedium.size() != 2) {
             throw new IncorrectSizeException(methodname, 2, cubeMedium.size());
         }
@@ -117,7 +119,6 @@ public class CaseOne {
             toAdd.add(new Cord(c.x, y, c.z));
         }
         cubeMedium.addAll(toAdd);
-        pb.printCube(cubeMedium);
         if (cubeMedium.size() != 8) {
             throw new IncorrectSizeException(methodname, 8, cubeMedium.size());
         }
